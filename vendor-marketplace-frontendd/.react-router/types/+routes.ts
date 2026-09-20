@@ -14,12 +14,15 @@ type Pages = {
   "/": {
     params: {};
   };
+  "/login/client": {
+    params: {};
+  };
 };
 
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/";
+    page: "/" | "/login/client";
   };
   "src/layouts/HomeLayout.tsx": {
     id: "src/layouts/HomeLayout";
@@ -29,10 +32,15 @@ type RouteFiles = {
     id: "src/pages/LandingPage";
     page: "/";
   };
+  "src/pages/auth/Login.tsx": {
+    id: "src/pages/auth/Login";
+    page: "/login/client";
+  };
 };
 
 type RouteModules = {
   "root": typeof import("./app/root.tsx");
   "src/layouts/HomeLayout": typeof import("./app/src/layouts/HomeLayout.tsx");
   "src/pages/LandingPage": typeof import("./app/src/pages/LandingPage.tsx");
+  "src/pages/auth/Login": typeof import("./app/src/pages/auth/Login.tsx");
 };
