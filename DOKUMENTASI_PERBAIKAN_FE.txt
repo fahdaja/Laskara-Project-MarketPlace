@@ -1,0 +1,177 @@
+================================================================================
+          DOKUMENTASI PERBAIKAN & INTEGRASI FRONTEND (FE)
+              PROJECT: VENDOR MARKETPLACE (LASKARA PROJECT)
+================================================================================
+
+Dokumen ini disusun sebagai acuan teknis, serah terima, dan panduan integrasi 
+untuk Tim Frontend (FE) mengenai seluruh perbaikan bug, perbaikan kontrol UI/UX, 
+serta penyesuaian integrasi API dengan Backend (NestJS).
+
+--------------------------------------------------------------------------------
+1. MODUL CHECKOUT & METODE PEMBAYARAN MIDTRANS (CheckoutView.vue)
+--------------------------------------------------------------------------------
+[LOKASI FILE]: 
+- Frontend: vendor-marketplace-frontend/src/views/client/CheckoutView.vue
+- Backend: vendor-marketplace-backend/src/orders/orders.controller.ts
+           vendor-marketplace-backend/src/orders/orders.service.ts
+
+[TEMUAN BUG & PERBAIKAN]:
+a. Error 500 & Filter Metode Pembayaran Midtrans Snap:
+   - Masalah: Panggilan POST /orders/:id/initiate-payment sebelumnya mengirim 
+     payload kosong sehingga backend melempar TypeError. Selain itu, pop-up Snap 
+     menampilkan semua metode pembayaran secara global.
+   - Solusi FE: Saat memanggil initiate-payment, FE kini mengirimkan payload JSON 
+     spesifik: { bank: selectedBank.value } (misal: { bank: 'bca' }) atau 
+     { paymentMethod: selectedPayment.value }.
+   - Dampak: Pop-up Midtrans Snap hanya menampilkan bank yang dipilih oleh 
+     pengguna (misal: BCA Virtual Account saja).
+
+b. Re-use Snap Token (Idempotency):
+   - Dampak Backend: Mengklik ulang tombol pembayaran pada pesanan pending tidak 
+     lagi membuat record transaksi baru di Midtrans Dashboard, melainkan 
+     menggunakan kembali snapToken yang tersimpan.
+
+c. Sinkronisasi Harga Paket Terpilih (Basic / Standard / Premium):
+   - Masalah: Pengguna memilih paket Premium (Rp 125.000 + Rp 25.000 Service Fee 
+     = Rp 150.000), namun di pop-up Midtrans tagihan tercatat Rp 125.000 (karena 
+     order dibuat dengan harga default basic Rp 100.000).
+   - Solusi FE: Saat checkout membuat pesanan baru via POST /orders, FE kini 
+     mengirimkan parameter price: chosenPrice.value:
+     api.post('/orders', { gigId: Number(productId), price: chosenPrice.value })
+   - Dampak: Backend menghitung totalAmount sesuai paket pilihan pembeli. 
+     Tagihan Midtrans (Harga Paket + Service Fee Rp 25.000) 100% presisi dengan 
+     Ringkasan Pesanan di UI Checkout.
+
+--------------------------------------------------------------------------------
+2. PERBAIKAN TAB PEMBAYARAN TERSEMBUNYI (Invisibility Class Bug)
+--------------------------------------------------------------------------------
+[LOKASI FILE]:
+- Frontend: vendor-marketplace-frontend/src/views/client/CheckoutView.vue
+
+[TEMUAN BUG & PERBAIKAN]:
+- Masalah: Mengklik tab 'Midtrans QRIS' atau 'Manual Transfer' membuat opsi 
+  pilihan di bawahnya tidak tampil / tersembunyi (transparan).
+- Penyebab: Elemen kontainer dibungkus class `.ai` (opacity: 0; translateY: 20px). 
+  Karena elemen dirender secara dinamis via v-if, IntersectionObserver yang 
+  berjalan di onMounted() tidak mengamati elemen baru tersebut sehingga tetap 
+  tersembunyi.
+- Solusi FE: Class `.ai` pada kontainer v-if="selectedPayment === 'qris'" dan 
+  v-if="selectedPayment === 'manual'" telah DIHAPUS.
+- Dampak: Pilihan E-Wallet QRIS dan Grid Bank Transfer Manual (BCA, Mandiri, BNI, 
+  BRI) kini langsung muncul secara instan saat tab diklik.
+
+--------------------------------------------------------------------------------
+3. MODUL TRANSFER MANUAL & VERIFIKASI PEMBAYARAN
+--------------------------------------------------------------------------------
+[LOKASI FILE]:
+- Frontend: vendor-marketplace-frontend/src/views/client/CheckoutView.vue
+- Frontend: vendor-marketplace-frontend/src/views/client/PaymentVerificationView.vue
+- Backend:  vendor-marketplace-backend/src/orders/orders.controller.ts
+- Backend:  vendor-marketplace-backend/src/orders/orders.service.ts
+
+[TEMUAN BUG & PERBAIKAN]:
+a. Grid Pilihan Bank Transfer Manual di Checkout:
+   - Penyempurnaan FE: Menambahkan grid tombol bank (BCA, Mandiri, BNI, BRI) pada 
+     tab Manual Transfer di CheckoutView.vue. Rincian nama bank, nomor rekening 
+     resmi, dan atas nama rekening berubah secara dinamis sesuai pilihan.
+
+b. Pengarahan Halamanelah Checkout:
+   - Alur FE: Setelah pengguna memilih bank dan mengklik 'Proses Pembayaran', FE 
+     mengarahkan pengguna ke halaman Verifikasi:
+     /jelajahi/:gigId/verifikasi?orderId=:orderId&method=manual&bank=:selectedBank
+
+c. Informasi Rekening & Unggah Bukti (PaymentVerificationView.vue):
+   - Penyempurnaan FE: PaymentVerificationView.vue membaca query parameter `bank` 
+     dan menampilkan instruksi transfer sesuai bank yang dipilih, total tagihan 
+     resmi, serta tombol "Unggah Bukti Transfer".
+
+d. Fix Upload Bukti Transfer (NestJS FileTypeValidator Fix):
+   - Masalah: Mengunggah bukti transfer fisik (foto/PDF) melempar HTTP 400 Bad Request.
+   - Penyebab Backend: FileTypeValidator default gagal mendeteksi mimetype 
+     image/png dan application/pdf.
+   - Solusi Backend: Controller diperbarui menggunakan regex:
+     /(image\/(jpeg|png|jpg)|application\/pdf)/i dengan fallbackToMimetype: true.
+
+--------------------------------------------------------------------------------
+4. MODUL UPLOAD FILE DELIVERABLE VENDOR (Hingga 150MB)
+--------------------------------------------------------------------------------
+[LOKASI FILE]:
+- Frontend: vendor-marketplace-frontend/src/views/vendor/TaskDetailView.vue
+- Frontend: vendor-marketplace-frontend/src/views/vendor/AssociateOrderDetailView.vue
+- Backend:  vendor-marketplace-backend/src/storage/storage.controller.ts
+- Backend:  vendor-marketplace-backend/src/deliverables/deliverables.controller.ts
+
+[TEMUAN BUG & PERBAIKAN]:
+- Masalah: Vendor mendapat error "File deliverable tidak boleh kosong!" atau 
+  terbentur batas 5MB saat mengunggah hasil pekerjaan (deliverable).
+- Solusi FE: TaskDetailView.vue dan AssociateOrderDetailView.vue kini menentukan 
+  bucket 'deliverables' saat memanggil fungsi upload:
+  uploadFile(file, 'deliverables')
+- Dampak Backend: Backend memberlakukan batas dinamis: Max 150MB khusus bucket 
+  'deliverables', sedangkan aset pendaftaran (logo, banner, KYB, avatar) tetap 
+  ketat dibatasi 5MB.
+
+--------------------------------------------------------------------------------
+5. MODUL PROMOSI / BOOST GIG VENDOR (EditGigView.vue)
+--------------------------------------------------------------------------------
+[LOKASI FILE]:
+- Frontend: vendor-marketplace-frontend/src/views/vendor/EditGigView.vue
+- Backend:  vendor-marketplace-backend/src/featured-placements/featured-placements.dto.ts
+
+[TEMUAN BUG & PERBAIKAN]:
+- Masalah: Vendor mendapat error "durationDays must not be less than 1" saat 
+  mengaktifkan Boost Gig dengan potong saldo wallet.
+- Solusi FE: Fungsi confirmBoost() pada EditGigView.vue kini menyertakan 
+  durationDays dalam payload request POST /featured-placements/promote:
+  await api.post('/featured-placements/promote', {
+    gigId: Number(gigId),
+    durationDays: Number(duration.value), // ◄ Menentukan durasi (3, 7, 30 hari)
+    payWithWallet: paymentMethod.value === 'saldo'
+  })
+- Dampak: Pemotongan saldo wallet merchant dan aktivasi status FEATURED berjalan 
+  secara otomatis dan instan.
+
+--------------------------------------------------------------------------------
+6. TABEL RINGKASAN STATUS PESANAN (ORDER LIFECYCLE)
+--------------------------------------------------------------------------------
++---------------------------+-----------------------------------+----------------------------------------+
+| Status Pesanan            | Pemicu (Trigger System)           | Tampilan / Aksi di Sisi Pembeli (Client)|
++---------------------------+-----------------------------------+----------------------------------------+
+| UNPAID                    | Pembeli selesai Checkout           | Mengunggah Bukti Transfer (jika manual)|
+| PAID_PENDING_CONFIRMATION | Bukti transfer manual terkirim    | Menunggu Verifikasi Finance Admin      |
+| IN_PROGRESS               | Webhook Midtrans / Finance Approve| Status "Sedang Dikerjakan oleh Vendor" |
+| DELIVERED                 | Vendor mengirim berkas deliverable| Banner "Pesanan Dikirim!" & Download   |
+| COMPLETED                 | Pembeli mengklik "Terima Pekerjaan"| Pesanan Selesai & Beri Rating/Ulasan   |
++---------------------------+-----------------------------------+----------------------------------------+
+
+--------------------------------------------------------------------------------
+7. SARAN PERBAIKAN HALAMAN SETELAH PEMBAYARAN SUKSES (BLANK PAGE FIX)
+--------------------------------------------------------------------------------
+[LOKASI FILE]:
+- Frontend: vendor-marketplace-frontend/src/views/client/PaymentVerificationView.vue
+- URL Redirect: http://localhost:5173/jelajahi/:gigId/verifikasi?orderId=:id&status=success
+
+[TEMUAN BUG BLANK PAGE & PERBAIKAN]:
+- Masalah: Setelah pembayaran Midtrans sukses, pengguna diarahkan kembali ke URL 
+  verifikasi (...?orderId=33&status=success), namun tampilan layar BLANK PUTIH KOSONG.
+- Penyebab Teknis: Elemen utama <div class="verification-card ai vis"> menggunakan 
+  class CSS `.ai` (opacity: 0). Karena fungsi fetchOrder() bersifat asynchronous 
+  (await fetchOrder()), komponen `verification-card` baru dirender ke DOM (v-else-if) 
+  SETELAH fungsi IntersectionObserver di onMounted() selesai mengeksekusi. 
+  Akibatnya elemen tertahan di status `opacity: 0` (transparan / blank).
+- Solusi FE: Class `.ai` pada pv__header dan verification-card di 
+  PaymentVerificationView.vue telah DIHAPUS.
+
+[REKOMENDASI ALUR TAMPILAN POST-PEMBAYARAN SUKSES FOR FE]:
+1. Saat status === 'success' atau order.status === 'IN_PROGRESS':
+   - Tampilkan Banner / Kartu Sukses berwarna Hijau dengan ikon Centang:
+     "Pembayaran Berhasil Dikonfirmasi!"
+   - Sertakan tombol aksi utama:
+     [ Lihat Detail Pesanan ] -> Mengarahkan langsung ke /pesanan/:orderId
+   - Alasan: Setelah pembayaran sukses, pengguna perlu membuka halaman Detail 
+     Pesanan (/pesanan/:id) untuk mulai berkomunikasi dengan vendor & memantau 
+     progres pengerjaan.
+
+================================================================================
+Catatan: File ini disimpan sebagai acuan bersama di lingkungan proyek Laskara.
+================================================================================
