@@ -1,0 +1,4 @@
+allowBuilds:
+  esbuild: true
+  stream-chat: true
+  vue-demi: true

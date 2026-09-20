@@ -1,0 +1,61 @@
+import {
+  Controller,
+  Post,
+  Get,
+  Patch,
+  Param,
+  Body,
+  Request,
+  UseGuards,
+  ParseIntPipe,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
+import { CustomOffersService } from './custom-offers.service';
+import { AuthGuard } from '../auth/auth.guard';
+import { CreateCustomOfferDto } from './dto/create-custom-offer.dto';
+
+interface RequestWithUser extends Request {
+  user: {
+    sub: number;
+    role: string;
+  };
+}
+
+@Controller('custom-offers')
+@UseGuards(AuthGuard)
+export class CustomOffersController {
+  constructor(private readonly customOffersService: CustomOffersService) {}
+
+  @Post('sent')
+  @HttpCode(HttpStatus.CREATED)
+  async createOffer(
+    @Request() req: RequestWithUser,
+    @Body() body: CreateCustomOfferDto,
+  ) {
+    return this.customOffersService.createOffer(
+      req.user.sub,
+      body.clientId,
+      body.channelId,
+      body,
+    );
+  }
+
+  @Patch(':id/accept')
+  async acceptOffer(
+    @Param('id', ParseIntPipe) id: number,
+    @Request() req: RequestWithUser,
+    @Body('messageId') messageId: string,
+  ) {
+    return this.customOffersService.acceptOffer(id, req.user.sub, messageId);
+  }
+
+  @Patch(':id/reject')
+  async rejectOffer(
+    @Param('id', ParseIntPipe) id: number,
+    @Request() req: RequestWithUser,
+    @Body('messageId') messageId: string,
+  ) {
+    return this.customOffersService.rejectOffer(id, req.user.sub, messageId);
+  }
+}

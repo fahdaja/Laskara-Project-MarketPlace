@@ -1,0 +1,100 @@
+import {
+  Controller,
+  Get,
+  Patch,
+  Param,
+  Query,
+  Body,
+  UseGuards,
+  Request,
+  ParseIntPipe,
+  NotFoundException,
+} from '@nestjs/common';
+import { TransactionsService } from './transactions.service';
+import { AuthGuard } from '../auth/auth.guard';
+import { TransactionStatus } from '@prisma/client';
+
+interface RequestWithUsers extends Request {
+  user: {
+    sub: number;
+    role: string;
+  };
+}
+
+@Controller('transactions')
+@UseGuards(AuthGuard)
+export class TransactionsController {
+  constructor(private readonly transactionsService: TransactionsService) {}
+
+  // Endpoint: GET /transactions/my-history
+  @Get('my-history')
+  async findMyTransactions(@Request() req: RequestWithUsers) {
+    return this.transactionsService.findMyTransactions(req.user.sub);
+  }
+
+  // Endpoint: GET /transactions/all
+  @Get('all')
+  async findAll(@Request() req: RequestWithUsers) {
+    return this.transactionsService.findAll(req.user.sub);
+  }
+
+  @Get('pending-refunds')
+  async getPendingRefunds() {
+    return this.transactionsService.getPendingRefundTransactions();
+  }
+
+  @Get('pending-releases')
+  async getPendingReleases() {
+    return this.transactionsService.getPendingReleaseTransactions();
+  }
+
+  @Get('financial-summary')
+  async getFinancialSummary(
+    @Request() req: RequestWithUsers,
+    @Query('period') period?: 'day' | 'week' | 'month',
+  ) {
+    return this.transactionsService.getFinancialSummary(req.user.sub, period);
+  }
+
+  @Get(':id')
+  async getTransactionDetails(
+    @Request() req: RequestWithUsers,
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    const transaction = await this.transactionsService.getDetailTransaction(id);
+    if (!transaction) {
+      throw new NotFoundException(`Transaksi dengan ID ${id} tidak ditemukan`);
+    }
+    return transaction;
+  }
+
+  @Patch(':id/verify')
+  async verifyTransaction(
+    @Request() req: RequestWithUsers,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: { status: TransactionStatus; verificationNote?: string },
+  ) {
+    return this.transactionsService.verifyTransaction(
+      req.user.sub,
+      id,
+      body.status,
+      body.verificationNote,
+    );
+  }
+
+  @Patch(':id/refund')
+  async refundOrder(
+    @Request() req: RequestWithUsers,
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    return this.transactionsService.refundTransaction(req.user.sub, id);
+  }
+
+  @Patch(':id/release')
+  async releaseOrder(
+    @Request() req: RequestWithUsers,
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    return this.transactionsService.releaseTransaction(req.user.sub, id);
+  }
+}

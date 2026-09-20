@@ -1,0 +1,70 @@
+@import "tailwindcss";
+
+/* ============================================
+   DESIGN SYSTEM - Vendor Marketplace
+   Rule 60-30-10 Color Composition
+   ============================================ */
+
+/* Custom Theme Configuration */
+@theme {
+  /* 60% - Background & Negative Space */
+  --color-warm-white: #FDF7F7;
+
+  /* 30% - Secondary Elements */
+  --color-brand-blue: #1D4ED8;
+  --color-brand-light: #60A5FA;
+  --color-brand-lighter: #BFDBFE;
+
+  /* 10% - Call to Action / Primary */
+  --color-brand-navy: #1E3A8A;
+
+  /* Semantic Colors */
+  --color-success: #059669;
+  --color-success-light: #D1FAE5;
+  --color-danger: #DC2626;
+  --color-danger-light: #FEE2E2;
+  --color-warning: #D97706;
+  --color-warning-light: #FEF3C7;
+  --color-info: #0284C7;
+  --color-info-light: #E0F2FE;
+
+  /* Neutral */
+  --color-gray-50: #F9FAFB;
+  --color-gray-100: #F3F4F6;
+  --color-gray-200: #E5E7EB;
+  --color-gray-300: #D1D5DB;
+  --color-gray-400: #9CA3AF;
+  --color-gray-500: #6B7280;
+  --color-gray-600: #4B5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1F2937;
+  --color-gray-900: #111827;
+
+  /* Typography */
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+  /* Font Sizes */
+  --text-h1: 3.5rem;     /* 56px */
+  --text-h2: 3rem;       /* 48px */
+  --text-h3: 2.5rem;     /* 40px */
+  --text-body-lg: 1.125rem;   /* 18px */
+  --text-body: 1rem;          /* 16px */
+  --text-body-sm: 0.875rem;   /* 14px */
+  --text-body-xs: 0.75rem;    /* 12px */
+  --text-caption: 0.625rem;   /* 10px */
+}
+
+/* Base Styles */
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background-color: var(--color-warm-white);
+    color: var(--color-gray-800);
+    line-height: 1.6;
+  }
+}
