@@ -1,5 +1,5 @@
 import React from "react";
-import Navbar from "../components/Navbar";
+import Navbar from "../components/common/Navbar";
 import HeroCreativeStudio from "../assets/images/hero-creative-studio.png";
 import VendorCreativeArt from "../assets/images/vendor/creative-art.png";
 import VendorVideoMakers from "../assets/images/vendor/videomakers.png";
