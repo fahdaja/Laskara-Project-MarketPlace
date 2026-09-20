@@ -11,8 +11,8 @@ import { LockKeyhole, Mail, UserRound } from "lucide-react";
 import type { Route } from "./+types/Login";
 
 import AuthPageShell from "~/src/components/auth/AuthPageShell";
-import AppButton from "~/src/components/ui/AppButton";
-import TextField from "~/src/components/ui/TextField";
+import AppButton from "~/src/components/common/AppButton";
+import TextField from "~/src/components/common/TextField";
 
 import {
   AuthServiceError,
