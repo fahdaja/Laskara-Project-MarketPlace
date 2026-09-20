@@ -1,2 +1,8 @@
 vendor-marketplace-backend/
 vendor-marketplace-frontend/
+
+
+vendor-marketplace-frontendd/node_modules/
+vendor-marketplace-frontendd/dist/
+vendor-marketplace-frontendd/build/
+
