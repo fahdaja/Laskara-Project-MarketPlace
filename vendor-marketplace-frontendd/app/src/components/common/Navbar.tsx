@@ -3,12 +3,12 @@ import { Link } from "react-router";
 import AuthModal from "./AuthModal";
 
 export default function Navbar(): React.JSX.Element {
-  const [isRegisterModalOpen, setIsRegisterModalOpen] = useState<boolean>(false);
+  const [isRegisterModalOpen, setIsRegisterModalOpen] =
+    useState<boolean>(false);
 
   return (
     <nav className="bg-white border-b border-gray-100 w-full font-sans sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between h-16">
-        
         {/* 1. SISI KIRI: Area Logo */}
         <div className="flex items-center gap-8">
           <Link to="/" className="flex items-center gap-2.5">
@@ -25,12 +25,18 @@ export default function Navbar(): React.JSX.Element {
           {/* 2. NAVIGATION LINKS */}
           <ul className="hidden md:flex items-center gap-6 font-semibold text-sm text-gray-600">
             <li>
-              <Link to="/catalog" className="hover:text-blue-600 transition">
+              <Link
+                to="/marketplace"
+                className="hover:text-blue-600 transition"
+              >
                 Jelajahi
               </Link>
             </li>
             <li>
-              <Link to="/register/merchant" className="hover:text-blue-600 transition">
+              <Link
+                to="/register/merchant"
+                className="hover:text-blue-600 transition"
+              >
                 Menjadi Vendor
               </Link>
             </li>

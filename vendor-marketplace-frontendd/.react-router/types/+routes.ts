@@ -23,6 +23,9 @@ type Pages = {
   "/login": {
     params: {};
   };
+  "/marketplace": {
+    params: {};
+  };
   "/merchant/gigs": {
     params: {};
   };
@@ -62,7 +65,7 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/register/merchant" | "/register/client" | "/login" | "/merchant/gigs" | "/merchant/gigs/create" | "/merchant/gigs/:id" | "/merchant/dashboard" | "/merchant/messages" | "/merchant/orders" | "/merchant/orders/:id" | "/merchant/transactions" | "/merchant/associates" | "/merchant/profile";
+    page: "/" | "/register/merchant" | "/register/client" | "/login" | "/marketplace" | "/merchant/gigs" | "/merchant/gigs/create" | "/merchant/gigs/:id" | "/merchant/dashboard" | "/merchant/messages" | "/merchant/orders" | "/merchant/orders/:id" | "/merchant/transactions" | "/merchant/associates" | "/merchant/profile";
   };
   "src/pages/auth/RegisterMerchant.tsx": {
     id: "src/pages/auth/RegisterMerchant";
@@ -83,6 +86,14 @@ type RouteFiles = {
   "src/pages/LandingPage.tsx": {
     id: "src/pages/LandingPage";
     page: "/";
+  };
+  "src/layouts/ClientLayout.tsx": {
+    id: "src/layouts/ClientLayout";
+    page: "/marketplace";
+  };
+  "src/pages/client/Marketplace.tsx": {
+    id: "src/pages/client/Marketplace";
+    page: "/marketplace";
   };
   "src/layouts/MerchantLayout.tsx": {
     id: "src/layouts/MerchantLayout";
@@ -137,6 +148,8 @@ type RouteModules = {
   "src/pages/auth/Login": typeof import("./app/src/pages/auth/Login.tsx");
   "src/layouts/HomeLayout": typeof import("./app/src/layouts/HomeLayout.tsx");
   "src/pages/LandingPage": typeof import("./app/src/pages/LandingPage.tsx");
+  "src/layouts/ClientLayout": typeof import("./app/src/layouts/ClientLayout.tsx");
+  "src/pages/client/Marketplace": typeof import("./app/src/pages/client/Marketplace.tsx");
   "src/layouts/MerchantLayout": typeof import("./app/src/layouts/MerchantLayout.tsx");
   "src/pages/merchant/Gigs": typeof import("./app/src/pages/merchant/Gigs.tsx");
   "src/pages/merchant/AddGigs": typeof import("./app/src/pages/merchant/AddGigs.tsx");

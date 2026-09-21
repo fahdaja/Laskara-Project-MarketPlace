@@ -1,6 +1,13 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router";
-import { Mail, Lock, User, ArrowRight, ShieldCheck, CheckCircle2 } from "lucide-react";
+import {
+  Mail,
+  Lock,
+  User,
+  ArrowRight,
+  ShieldCheck,
+  CheckCircle2,
+} from "lucide-react";
 import AuthPageShell from "~/src/components/auth/AuthPageShell";
 
 export default function RegisterClient(): React.JSX.Element {
@@ -20,7 +27,7 @@ export default function RegisterClient(): React.JSX.Element {
     setTimeout(() => {
       setIsLoading(false);
       // Redirect ke katalog/explore marketplace setelah berhasil
-      navigate("/catalog");
+      navigate("/marketplace");
     }, 1200);
   };
 
@@ -47,7 +54,10 @@ export default function RegisterClient(): React.JSX.Element {
             Nama Lengkap <span className="text-rose-500">*</span>
           </label>
           <div className="relative">
-            <User size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+            <User
+              size={16}
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
+            />
             <input
               type="text"
               required
@@ -65,7 +75,10 @@ export default function RegisterClient(): React.JSX.Element {
             Alamat Email <span className="text-rose-500">*</span>
           </label>
           <div className="relative">
-            <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Mail
+              size={16}
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
+            />
             <input
               type="email"
               required
@@ -83,7 +96,10 @@ export default function RegisterClient(): React.JSX.Element {
             Kata Sandi <span className="text-rose-500">*</span>
           </label>
           <div className="relative">
-            <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Lock
+              size={16}
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
+            />
             <input
               type="password"
               required
