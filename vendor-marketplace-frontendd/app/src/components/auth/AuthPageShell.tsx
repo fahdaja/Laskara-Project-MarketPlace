@@ -1,60 +1,50 @@
-import type { ReactNode } from "react";
+import React from "react";
 import { Link } from "react-router";
 import { ArrowLeft } from "lucide-react";
 
-import logo from "~/src/assets/images/logo.png";
-
 interface AuthPageShellProps {
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
-export default function AuthPageShell({
-  children,
-}: AuthPageShellProps) {
+export default function AuthPageShell({ children }: AuthPageShellProps) {
   return (
-    <main className="min-h-screen bg-slate-50">
-      <div className="flex min-h-screen flex-col">
-        {/* Header */}
-        <header className="flex items-center justify-between px-6 py-6 sm:px-10 lg:px-14">
-          <Link
-            to="/"
-            className="flex items-center gap-3"
-            aria-label="Kembali ke LayananPro"
-          >
-            <img
-              src={logo}
-              alt=""
-              className="h-9 w-auto object-contain"
-            />
+    <div className="min-h-screen bg-slate-50 flex flex-col justify-between p-4 sm:p-6">
+      {/* 1. Header Navbar Sederhana */}
+      <header className="max-w-7xl w-full mx-auto flex items-center justify-between py-2">
+        <Link to="/" className="flex items-center gap-2.5">
+          <img
+            src="/assets/images/logo.png"
+            alt="LayananPro Logo"
+            className="h-8 w-auto object-contain"
+          />
+          <span className="font-bold text-xl text-slate-900 tracking-tight">
+            LayananPro
+          </span>
+        </Link>
 
-            <span className="text-xl font-bold tracking-tight text-slate-900">
-              LayananPro
-            </span>
-          </Link>
+        <Link
+          to="/"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 transition"
+        >
+          <ArrowLeft size={16} />
+          <span>Kembali</span>
+        </Link>
+      </header>
 
-          <Link
-            to="/"
-            className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium text-slate-500 transition hover:bg-slate-100 hover:text-slate-800"
-          >
-            <ArrowLeft size={16} />
-            <span className="hidden sm:inline">
-              Kembali
-            </span>
-          </Link>
-        </header>
-
-        {/* Content */}
-        <section className="flex flex-1 items-start justify-center px-6 pt-12 sm:px-10">
-          <div className="w-full max-w-[430px]">
+      {/* 2. Main Card Form (DI SINI PERBAIKANNYA) */}
+      <main className="my-auto py-8">
+        <div className="sm:mx-auto sm:w-full sm:max-w-md">
+          {/* Card Wrapper dengan background putih, shadow, & border */}
+          <div className="bg-white py-8 px-6 sm:px-8 shadow-sm border border-slate-200/80 rounded-3xl">
             {children}
           </div>
-        </section>
+        </div>
+      </main>
 
-        {/* Footer */}
-        <footer className="px-6 pb-7 text-center text-xs text-slate-400 sm:px-10">
-          © {new Date().getFullYear()} LayananPro
-        </footer>
-      </div>
-    </main>
+      {/* 3. Footer Copyright */}
+      <footer className="text-center text-xs text-slate-400 py-4">
+        © {new Date().getFullYear()} LayananPro. All rights reserved.
+      </footer>
+    </div>
   );
 }

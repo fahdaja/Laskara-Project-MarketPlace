@@ -1,5 +1,4 @@
 import React from "react";
-import logo from "../../assets/images/logo.png";
 
 export default function Footer() {
   return (
@@ -14,7 +13,7 @@ export default function Footer() {
           <div className="flex flex-col space-y-4">
             <div className="flex items-center space-x-2">
               <img
-                src={logo}
+                src="../../../../public/assets/images/logo.png"
                 alt="Layanan Pro Logo"
                 className="h-8 w-auto object-contain"
               />

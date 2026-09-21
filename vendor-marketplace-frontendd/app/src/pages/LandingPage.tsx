@@ -1,9 +1,5 @@
 import React from "react";
 import Navbar from "../components/common/Navbar";
-import HeroCreativeStudio from "../assets/images/hero-creative-studio.png";
-import VendorCreativeArt from "../assets/images/vendor/creative-art.png";
-import VendorVideoMakers from "../assets/images/vendor/videomakers.png";
-import VendorEventPro from "../assets/images/vendor/eventpro.png";
 import {
   Camera,
   Cpu,
@@ -86,7 +82,7 @@ export default function LandingPage() {
           {/* Kolom Kanan: Gambar */}
           <div className="w-full max-w-lg md:max-w-xl justify-self-center md:justify-self-end overflow-hidden rounded-3xl shadow-xl">
             <img
-              src={HeroCreativeStudio}
+              src="../../../public/assets/images/hero-creative-studio.png"
               alt="Hero Creative Studio"
               className="w-full h-[300px] sm:h-[400px] md:h-[450px] object-cover object-center"
             />
@@ -158,7 +154,7 @@ export default function LandingPage() {
               <div className="h-48 bg-gray-200 overflow-hidden">
                 {/* Ganti src dengan variabel gambar Anda, misal: {HeroCreativeStudio} */}
                 <img
-                  src={VendorCreativeArt}
+                  src="../../../assets/images/vendor/creative-art.png"
                   alt="Creative Studio"
                   className="w-full h-full object-cover"
                 />
@@ -187,7 +183,7 @@ export default function LandingPage() {
             <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition duration-300">
               <div className="h-48 bg-gray-200 overflow-hidden">
                 <img
-                  src={VendorVideoMakers}
+                  src="../../../assets/images/vendor/videomakers.png"
                   alt="VideoMakers ITB"
                   className="w-full h-full object-cover"
                 />
@@ -216,7 +212,7 @@ export default function LandingPage() {
             <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition duration-300">
               <div className="h-48 bg-gray-200 overflow-hidden">
                 <img
-                  src={VendorEventPro}
+                  src="../../../assets/images/vendor/eventpro.png"
                   alt="EventPro UI"
                   className="w-full h-full object-cover"
                 />

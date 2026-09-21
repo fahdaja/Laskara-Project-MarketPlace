@@ -14,7 +14,47 @@ type Pages = {
   "/": {
     params: {};
   };
-  "/login/client": {
+  "/register/merchant": {
+    params: {};
+  };
+  "/register/client": {
+    params: {};
+  };
+  "/login": {
+    params: {};
+  };
+  "/merchant/gigs": {
+    params: {};
+  };
+  "/merchant/gigs/create": {
+    params: {};
+  };
+  "/merchant/gigs/:id": {
+    params: {
+      "id": string;
+    };
+  };
+  "/merchant/dashboard": {
+    params: {};
+  };
+  "/merchant/messages": {
+    params: {};
+  };
+  "/merchant/orders": {
+    params: {};
+  };
+  "/merchant/orders/:id": {
+    params: {
+      "id": string;
+    };
+  };
+  "/merchant/transactions": {
+    params: {};
+  };
+  "/merchant/associates": {
+    params: {};
+  };
+  "/merchant/profile": {
     params: {};
   };
 };
@@ -22,7 +62,19 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/login/client";
+    page: "/" | "/register/merchant" | "/register/client" | "/login" | "/merchant/gigs" | "/merchant/gigs/create" | "/merchant/gigs/:id" | "/merchant/dashboard" | "/merchant/messages" | "/merchant/orders" | "/merchant/orders/:id" | "/merchant/transactions" | "/merchant/associates" | "/merchant/profile";
+  };
+  "src/pages/auth/RegisterMerchant.tsx": {
+    id: "src/pages/auth/RegisterMerchant";
+    page: "/register/merchant";
+  };
+  "src/pages/auth/RegisterClient.tsx": {
+    id: "src/pages/auth/RegisterClient";
+    page: "/register/client";
+  };
+  "src/pages/auth/Login.tsx": {
+    id: "src/pages/auth/Login";
+    page: "/login";
   };
   "src/layouts/HomeLayout.tsx": {
     id: "src/layouts/HomeLayout";
@@ -32,15 +84,68 @@ type RouteFiles = {
     id: "src/pages/LandingPage";
     page: "/";
   };
-  "src/pages/auth/Login.tsx": {
-    id: "src/pages/auth/Login";
-    page: "/login/client";
+  "src/layouts/MerchantLayout.tsx": {
+    id: "src/layouts/MerchantLayout";
+    page: "/merchant/gigs" | "/merchant/gigs/create" | "/merchant/gigs/:id" | "/merchant/dashboard" | "/merchant/messages" | "/merchant/orders" | "/merchant/orders/:id" | "/merchant/transactions" | "/merchant/associates" | "/merchant/profile";
+  };
+  "src/pages/merchant/Gigs.tsx": {
+    id: "src/pages/merchant/Gigs";
+    page: "/merchant/gigs";
+  };
+  "src/pages/merchant/AddGigs.tsx": {
+    id: "src/pages/merchant/AddGigs";
+    page: "/merchant/gigs/create";
+  };
+  "src/pages/merchant/GigsDetail.tsx": {
+    id: "src/pages/merchant/GigsDetail";
+    page: "/merchant/gigs/:id";
+  };
+  "src/pages/merchant/Dashboard.tsx": {
+    id: "src/pages/merchant/Dashboard";
+    page: "/merchant/dashboard";
+  };
+  "src/pages/merchant/Messages.tsx": {
+    id: "src/pages/merchant/Messages";
+    page: "/merchant/messages";
+  };
+  "src/pages/merchant/Orders.tsx": {
+    id: "src/pages/merchant/Orders";
+    page: "/merchant/orders";
+  };
+  "src/components/merchant/OrderDetail.tsx": {
+    id: "src/components/merchant/OrderDetail";
+    page: "/merchant/orders/:id";
+  };
+  "src/pages/merchant/Transactions.tsx": {
+    id: "src/pages/merchant/Transactions";
+    page: "/merchant/transactions";
+  };
+  "src/pages/merchant/Associates.tsx": {
+    id: "src/pages/merchant/Associates";
+    page: "/merchant/associates";
+  };
+  "src/pages/merchant/StoreProfile.tsx": {
+    id: "src/pages/merchant/StoreProfile";
+    page: "/merchant/profile";
   };
 };
 
 type RouteModules = {
   "root": typeof import("./app/root.tsx");
+  "src/pages/auth/RegisterMerchant": typeof import("./app/src/pages/auth/RegisterMerchant.tsx");
+  "src/pages/auth/RegisterClient": typeof import("./app/src/pages/auth/RegisterClient.tsx");
+  "src/pages/auth/Login": typeof import("./app/src/pages/auth/Login.tsx");
   "src/layouts/HomeLayout": typeof import("./app/src/layouts/HomeLayout.tsx");
   "src/pages/LandingPage": typeof import("./app/src/pages/LandingPage.tsx");
-  "src/pages/auth/Login": typeof import("./app/src/pages/auth/Login.tsx");
+  "src/layouts/MerchantLayout": typeof import("./app/src/layouts/MerchantLayout.tsx");
+  "src/pages/merchant/Gigs": typeof import("./app/src/pages/merchant/Gigs.tsx");
+  "src/pages/merchant/AddGigs": typeof import("./app/src/pages/merchant/AddGigs.tsx");
+  "src/pages/merchant/GigsDetail": typeof import("./app/src/pages/merchant/GigsDetail.tsx");
+  "src/pages/merchant/Dashboard": typeof import("./app/src/pages/merchant/Dashboard.tsx");
+  "src/pages/merchant/Messages": typeof import("./app/src/pages/merchant/Messages.tsx");
+  "src/pages/merchant/Orders": typeof import("./app/src/pages/merchant/Orders.tsx");
+  "src/components/merchant/OrderDetail": typeof import("./app/src/components/merchant/OrderDetail.tsx");
+  "src/pages/merchant/Transactions": typeof import("./app/src/pages/merchant/Transactions.tsx");
+  "src/pages/merchant/Associates": typeof import("./app/src/pages/merchant/Associates.tsx");
+  "src/pages/merchant/StoreProfile": typeof import("./app/src/pages/merchant/StoreProfile.tsx");
 };

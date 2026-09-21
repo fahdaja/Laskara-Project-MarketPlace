@@ -6,6 +6,7 @@ export type UserRole =
   | "MERCHANT_OWNER"
   | "MERCHANT_ASSOCIATE";
 
+
 export interface AuthUser {
   id: number;
   email: string;
