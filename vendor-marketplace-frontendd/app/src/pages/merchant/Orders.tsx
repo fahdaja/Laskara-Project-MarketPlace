@@ -10,71 +10,18 @@ import {
   ChevronRight,
   User,
   X,
-  ExternalLink,
+  XCircle,
 } from "lucide-react";
 import Breadcrumb from "../../components/common/BreadCrumb";
 import { Link } from "react-router";
-
-interface OrderItem {
-  id: string;
-  clientName: string;
-  serviceTitle: string;
-  packageTier: "Basic" | "Standard" | "Premium";
-  price: number;
-  orderDate: string;
-  deadline: string;
-  status: "PENDING" | "IN_PROGRESS" | "IN_REVIEW" | "COMPLETED" | "CANCELLED";
-  notes?: string;
-  deliveredFiles?: string[];
-}
+import type { OrderItem } from "~/src/types/Order";
+import { initialOrderList } from "~/src/data/mockOrders";
+import { formatRupiah } from "~/src/utils/formatRupiah";
+import { mapTabToOrderStatus } from "~/src/helper/orderHelper";
 
 export default function Orders(): React.JSX.Element {
   // Mock Data Order
-  const [orders, setOrders] = useState<OrderItem[]>([
-    {
-      id: "ORD-9482",
-      clientName: "Budi Santoso",
-      serviceTitle: "Desain Logo Minimalis & Brand Guidelines",
-      packageTier: "Standard",
-      price: 150000,
-      orderDate: "20 Sep 2026",
-      deadline: "2 Hari lagi",
-      status: "IN_PROGRESS",
-      notes: "Tolong gunakan warna dominan biru gelap (#0F172A) dan aksen emas.",
-    },
-    {
-      id: "ORD-9481",
-      clientName: "Siti Rahma",
-      serviceTitle: "UI/UX Redesign Landing Page Mobile",
-      packageTier: "Premium",
-      price: 450000,
-      orderDate: "21 Sep 2026",
-      deadline: "Esok Hari",
-      status: "PENDING",
-      notes: "Referensikan gaya UI seperti aplikasi Stripe.",
-    },
-    {
-      id: "ORD-9475",
-      clientName: "Rian Prasetyo",
-      serviceTitle: "Video Motion Graphic 30 Detik",
-      packageTier: "Basic",
-      price: 250000,
-      orderDate: "18 Sep 2026",
-      deadline: "Menunggu Persetujuan",
-      status: "IN_REVIEW",
-      deliveredFiles: ["final_motion_v1.mp4", "script_draft.pdf"],
-    },
-    {
-      id: "ORD-9470",
-      clientName: "PT Digital Nusantara",
-      serviceTitle: "Desain Logo Minimalis & Brand Guidelines",
-      packageTier: "Premium",
-      price: 750000,
-      orderDate: "15 Sep 2026",
-      deadline: "Selesai",
-      status: "COMPLETED",
-    },
-  ]);
+  const [orders, setOrders] = useState<OrderItem[]>(initialOrderList);
 
   const [selectedOrderForDecline, setSelectedOrderForDecline] = useState<OrderItem | null>(null);
   const [declineReason, setDeclineReason] = useState<string>("");
@@ -83,54 +30,42 @@ export default function Orders(): React.JSX.Element {
   const [selectedOrderForDelivery, setSelectedOrderForDelivery] = useState<OrderItem | null>(null);
   const [deliveryFile, setDeliveryFile] = useState<File | null>(null);
 
-  // Helper Format Rupiah
-  const formatRupiah = (number: number) => {
-    return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      maximumFractionDigits: 0,
-    }).format(number);
-  };
-
-  const tabs = ["Semua", "Baru", "Diproses", "Menunggu Review", "Selesai"];
-
-  // Filter Order List
-  const filteredOrders = orders.filter((order) => {
+  const tabs = ["Semua", "Baru", "Diproses", "Menunggu Review", "Selesai", "Ditolak"];
+  const targetStatus = mapTabToOrderStatus(activeTab)
+  const filteredOrders = orders.filter((orders) => {
     const matchesSearch =
-      order.clientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      order.serviceTitle.toLowerCase().includes(searchQuery.toLowerCase());
-
-    if (activeTab === "Baru") return matchesSearch && order.status === "PENDING";
-    if (activeTab === "Diproses") return matchesSearch && order.status === "IN_PROGRESS";
-    if (activeTab === "Menunggu Review") return matchesSearch && order.status === "IN_REVIEW";
-    if (activeTab === "Selesai") return matchesSearch && order.status === "COMPLETED";
-    return matchesSearch;
-  });
+    orders.clientName.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    orders.id.toLowerCase().includes(searchQuery.toLocaleLowerCase()) ||
+    orders.serviceTitle.toLowerCase().includes(searchQuery.toLocaleLowerCase())
+    if(!targetStatus) return matchesSearch
+    return matchesSearch && orders.status === targetStatus
+  })
 
   // Action Handlers Decline Order
   const handleConfirmDecline = (e: React.FormEvent) => {
-  e.preventDefault();
-  if (!selectedOrderForDecline || !declineReason) return;
+    e.preventDefault();
+    if (!selectedOrderForDecline || !declineReason) return;
 
-  setOrders((prev) =>
-    prev.map((o) =>
-      o.id === selectedOrderForDecline.id
-        ? { ...o, status: "CANCELLED" }
-        : o
-    )
-  );
+    setOrders((prev) =>
+      prev.map((o) =>
+        o.id === selectedOrderForDecline.id
+          ? { ...o, status: "REJECTED" }
+          : o
+      )
+    );
 
-  setSelectedOrderForDecline(null);
-  setDeclineReason("");
-};
-  // Action Handlers
+    setSelectedOrderForDecline(null);
+    setDeclineReason("");
+  };
+
+  // Action Handlers Accept Order
   const handleAcceptOrder = (orderId: string) => {
     setOrders((prev) =>
       prev.map((o) => (o.id === orderId ? { ...o, status: "IN_PROGRESS" } : o))
     );
   };
 
+  // Action Handlers Submit Delivery
   const handleSubmitDelivery = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedOrderForDelivery) return;
@@ -299,6 +234,12 @@ export default function Orders(): React.JSX.Element {
                       Selesai
                     </span>
                   )}
+                  {/* Badge untuk Batal/Ditolak */}
+                  {order.status === "REJECTED" && (
+                    <span className="px-3 py-1 rounded-full bg-rose-50 text-rose-600 font-bold text-[10px] uppercase">
+                      Ditolak
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -339,58 +280,61 @@ export default function Orders(): React.JSX.Element {
                     </span>
                   </div>
 
-                 {/* Actions per Status (Di pojok kanan bawah Order Card) */}
-<div className="flex flex-wrap items-center gap-2 w-full md:w-auto justify-end pt-2">
-  
-  {/* 1. Tombol Chat Klien */}
-  <Link
-    to="/merchant/messages"
-    className="p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-semibold flex items-center gap-1.5 transition"
-  >
-    <MessageSquare size={14} />
-    <span className="hidden sm:inline">Chat Klien</span>
-  </Link>
+                  {/* Actions per Status */}
+                  <div className="flex flex-wrap items-center gap-2 w-full md:w-auto justify-end pt-2">
+                    {/* 3. Integration Direct Link WhatsApp ke Client */}
+                    {order.clientPhone && (
+                      <a
+                        href={`https://wa.me/${order.clientPhone.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(
+                          `Halo ${order.clientName}, saya terkait pesanan${order.id}`
+                        )}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-2.5 rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold flex items-center gap-1.5 transition"
+                      >
+                        <MessageSquare size={14} className="text-emerald-600" />
+                        <span className="hidden sm:inline">Chat WA</span>
+                      </a>
+                    )}
 
-  {/* 2. TOMBOL LIHAT DETAIL (DITAMBAHKAN DI SINI) */}
-  <Link
-    to={`/merchant/orders/${order.id}`}
-    className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold flex items-center gap-1 transition shadow-sm"
-  >
-    <span>Lihat Detail</span>
-    <ChevronRight size={14} />
-  </Link>
+                    {/* Tombol Lihat Detail */}
+                    <Link
+                      to={`/merchant/orders/${order.id}`}
+                      className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold flex items-center gap-1 transition shadow-sm"
+                    >
+                      <span>Lihat Detail</span>
+                      <ChevronRight size={14} />
+                    </Link>
 
-  {/* 3. Tombol Aksi Dinamis Berdasarkan Status */}
-  {order.status === "PENDING" && (
-<>
-    {/* Tombol Tolak */}
-    <button
-      onClick={() => setSelectedOrderForDecline(order)}
-      className="px-3.5 py-2.5 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-semibold transition"
-    >
-      Tolak
-    </button>
+                    {/* Tombol Aksi Dinamis Berdasarkan Status */}
+                    {order.status === "PENDING" && (
+                      <>
+                        <button
+                          onClick={() => setSelectedOrderForDecline(order)}
+                          className="px-3.5 py-2.5 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-semibold transition"
+                        >
+                          Tolak
+                        </button>
 
-    {/* Tombol Terima */}
-    <button
-      onClick={() => handleAcceptOrder(order.id)}
-      className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition shadow-sm"
-    >
-      Terima & Kerjakan
-    </button>
-  </>
-  )}
+                        <button
+                          onClick={() => handleAcceptOrder(order.id)}
+                          className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition shadow-sm"
+                        >
+                          Terima & Kerjakan
+                        </button>
+                      </>
+                    )}
 
-  {order.status === "IN_PROGRESS" && (
-    <button
-      onClick={() => setSelectedOrderForDelivery(order)}
-      className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold flex items-center gap-1.5 transition shadow-sm"
-    >
-      <Upload size={14} />
-      <span>Kirim Hasil Kerja</span>
-    </button>
-  )}
-</div>
+                    {order.status === "IN_PROGRESS" && (
+                      <button
+                        onClick={() => setSelectedOrderForDelivery(order)}
+                        className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold flex items-center gap-1.5 transition shadow-sm"
+                      >
+                        <Upload size={14} />
+                        <span>Kirim Hasil Kerja</span>
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -466,66 +410,67 @@ export default function Orders(): React.JSX.Element {
             </form>
           </div>
         </div>
-    )}
-        {/* MODAL TOLAK ORDER */}
-{selectedOrderForDecline && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
-    <div className="bg-white rounded-2xl border border-slate-200 shadow-xl w-full max-w-md overflow-hidden">
-      <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-rose-50/50">
-        <div className="flex items-center gap-2 text-rose-600 font-bold text-sm">
-          <AlertCircle size={18} />
-          <span>Tolak Pesanan Masuk</span>
-        </div>
-        <button
-          onClick={() => setSelectedOrderForDecline(null)}
-          className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition"
-        >
-          <X size={18} />
-        </button>
-      </div>
+      )}
 
-      <form onSubmit={handleConfirmDecline} className="p-6 space-y-4">
-        <p className="text-xs text-slate-600 leading-relaxed">
-          Apakah kamu yakin ingin menolak pesanan <span className="font-bold text-slate-900">{selectedOrderForDecline.id}</span> dari <span className="font-bold text-slate-900">{selectedOrderForDecline.clientName}</span>?
-        </p>
+      {/* MODAL TOLAK ORDER */}
+      {selectedOrderForDecline && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-xl w-full max-w-md overflow-hidden">
+            <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-rose-50/50">
+              <div className="flex items-center gap-2 text-rose-600 font-bold text-sm">
+                <AlertCircle size={18} />
+                <span>Tolak Pesanan Masuk</span>
+              </div>
+              <button
+                onClick={() => setSelectedOrderForDecline(null)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition"
+              >
+                <X size={18} />
+              </button>
+            </div>
 
-        <div className="space-y-1.5">
-          <label className="text-xs font-bold text-slate-800 uppercase tracking-wider block">
-            Alasan Penolakan <span className="text-rose-500">*</span>
-          </label>
-          <select
-            required
-            value={declineReason}
-            onChange={(e) => setDeclineReason(e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-none focus:border-blue-500 bg-white transition"
-          >
-            <option value="">-- Pilih Alasan --</option>
-            <option value="Jadwal / Kuota pengerjaan penuh">Jadwal / Kuota pengerjaan penuh</option>
-            <option value="Brief / Requirement tidak sesuai spesifikasi">Brief / Requirement tidak sesuai spesifikasi</option>
-            <option value="Kebutuhan waktu terlalu mendesak">Kebutuhan waktu terlalu mendesak</option>
-            <option value="Lainnya">Lainnya</option>
-          </select>
-        </div>
+            <form onSubmit={handleConfirmDecline} className="p-6 space-y-4">
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Apakah kamu yakin ingin menolak pesanan <span className="font-bold text-slate-900">{selectedOrderForDecline.id}</span> dari <span className="font-bold text-slate-900">{selectedOrderForDecline.clientName}</span>?
+              </p>
 
-        <div className="flex justify-end gap-2.5 pt-3 border-t border-slate-100">
-          <button
-            type="button"
-            onClick={() => setSelectedOrderForDecline(null)}
-            className="px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition"
-          >
-            Batal
-          </button>
-          <button
-            type="submit"
-            className="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold shadow-sm transition"
-          >
-            Ya, Tolak Pesanan
-          </button>
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-800 uppercase tracking-wider block">
+                  Alasan Penolakan <span className="text-rose-500">*</span>
+                </label>
+                <select
+                  required
+                  value={declineReason}
+                  onChange={(e) => setDeclineReason(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-none focus:border-blue-500 bg-white transition"
+                >
+                  <option value="">-- Pilih Alasan --</option>
+                  <option value="Jadwal / Kuota pengerjaan penuh">Jadwal / Kuota pengerjaan penuh</option>
+                  <option value="Brief / Requirement tidak sesuai spesifikasi">Brief / Requirement tidak sesuai spesifikasi</option>
+                  <option value="Kebutuhan waktu terlalu mendesak">Kebutuhan waktu terlalu mendesak</option>
+                  <option value="Lainnya">Lainnya</option>
+                </select>
+              </div>
+
+              <div className="flex justify-end gap-2.5 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setSelectedOrderForDecline(null)}
+                  className="px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold shadow-sm transition"
+                >
+                  Ya, Tolak Pesanan
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
-      </form>
-    </div>
-  </div>
-)}
+      )}
     </div>
   );
 }

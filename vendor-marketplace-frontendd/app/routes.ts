@@ -35,12 +35,20 @@ export default [
 
     route("merchant/orders", "src/pages/merchant/Orders.tsx"),
 
-    route("merchant/orders/:id", "src/components/merchant/OrderDetail.tsx"),
+    route("merchant/orders/:id", "src/pages/merchant/OrderDetail.tsx"),
 
     route("merchant/transactions", "src/pages/merchant/Transactions.tsx"),
 
     route("merchant/associates", "src/pages/merchant/Associates.tsx"),
 
     route("merchant/profile", "src/pages/merchant/StoreProfile.tsx"),
+
+    route("merchant/onboarding", "src/pages/merchant/MerchantOnBoarding.tsx"),
+
+    route("merchant/pending", "src/pages/merchant/MerchantPending.tsx"),
+
+    route("merchant/rejected", "src/pages/merchant/MerchantRejected.tsx"),
+
+    route("merchant/approve", "src/pages/merchant/MerchantActivated.tsx")
   ]),
 ] satisfies RouteConfig;

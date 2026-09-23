@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router"; // 1. Tambahkan useNavigate
+import { Link, useLocation, useNavigate } from "react-router";
 import { 
   LayoutGrid, 
   MessageSquare, 
@@ -8,42 +8,54 @@ import {
   Users, 
   Store,
   Home,
-  LogOut
+  LogOut,
+  Repeat
 } from "lucide-react";
 import LogoutModal from "../common/LogoutModal";
+import ComingSoonModal from "../common/ComingSoonModal";
+
 
 export default function Sidebar() {
-  const location = useLocation();
-  const navigate = useNavigate(); // 2. Deklarasikan hook navigate
-
-  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   
-  // Daftar Menu Sidebar dengan Path URL yang sudah disesuaikan
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [isComingSoonModalOpen, setIsComingSoonModalOpen] = useState(false);
+  const [activeFeatureName, setActiveFeatureName] = useState<string>('');
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+
+  // State lokal untuk testing switch role langsung di sidebar (jika belum di-handle dari parent)
+  const [currentRole, setCurrentRole] = useState<"OWNER" | "ASSOCIATES">();
+
+  const handleDisableNavClick = (e: React.MouseEvent, featureName: string) => {
+    e.preventDefault();
+    setActiveFeatureName(featureName);
+    setIsComingSoonModalOpen(true);
+  };
+  
+  // Daftar Menu Sidebar
   const menuItems = [
     { name: "Ringkasan Toko", path: "/merchant/dashboard", icon: Home },
-    { name: "Manajemen Layanan", path: "/merchant/gigs", icon: LayoutGrid }, // Sesuaikan ke /services
-    { name: "Pesan & Penawaran", path: "/merchant/messages", icon: MessageSquare },
+    { name: "Manajemen Layanan", path: "/merchant/gigs", icon: LayoutGrid },
+    { name: "Pesan & Penawaran", path: "/merchant/messages", icon: MessageSquare, isComingSoonModalOpen: true },
     { name: "Order", path: "/merchant/orders", icon: ShoppingBag },
-    { name: "Transaksi", path: "/merchant/transactions", icon: Receipt },
-    { name: "Associate Toko", path: "/merchant/associates", icon: Users },
-    { name: "Toko Saya", path: "/merchant/profile", icon: Store }, // Sesuaikan ke /store
+    { name: "Transaksi", path: "/merchant/transactions", icon: Receipt, ownerOnly: true },
+    { name: "Associate Toko", path: "/merchant/associates", icon: Users, ownerOnly: true },
+    { name: "Toko Saya", path: "/merchant/profile", icon: Store, ownerOnly: true },
   ];
 
   const handleLogout = () => {
-    // Hapus token/session
     localStorage.removeItem("accessToken");
     localStorage.removeItem("user");
-
-    // Tutup modal & arahkan ke Login
     setIsLogoutModalOpen(false);
     navigate("/login");
   };
 
+
   return (
     <aside className="w-64 h-screen bg-white border-r border-slate-200 flex flex-col flex-shrink-0">
       {/* Logo / Brand Header */}
-      <div className="p-6 border-b border-slate-100">
-        <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+      <div className="p-5 border-b border-slate-100 flex items-center justify-between">
+        <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
           <div className="w-7 h-7 bg-blue-600 rounded-lg flex items-center justify-center text-white font-black text-xs">
             LT
           </div>
@@ -51,18 +63,40 @@ export default function Sidebar() {
         </h2>
       </div>
 
+      {/* 🛠️ TOMBOL SIMULASI SWITCH ROLE UNTUK TESTING */}
+      <div className="px-4 pt-3 pb-1">
+        <button
+          className="w-full py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-[11px] font-bold transition flex items-center justify-between border border-slate-200"
+          title="Klik untuk simulasi ganti hak akses"
+        >
+          <span className="flex items-center gap-1.5">
+            <Repeat size={13} className="text-blue-600" />
+            Role: <span className="text-blue-600 uppercase">{currentRole}</span>
+          </span>
+          <span className="text-[10px] text-slate-400 font-normal underline">Ganti</span>
+        </button>
+      </div>
+
       {/* List Navigation Menu */}
       <nav className="flex-1 p-4 flex flex-col justify-between overflow-y-auto">
         <div className="space-y-1">
           {menuItems.map((item) => {
+            // Sembunyikan menu khusus owner jika role aktif adalah ASSOCIATES
+            if (item.ownerOnly && currentRole === "ASSOCIATES") {
+              return null;
+            }
             const Icon = item.icon;
-            // Cek apakah path saat ini sama dengan menu
             const isActive = location.pathname.startsWith(item.path);
 
             return (
               <Link
                 key={item.path}
                 to={item.path}
+                onClick={(e) => {
+                  if (item.isComingSoonModalOpen){
+                    handleDisableNavClick(e, item.name);
+                  }
+                }}
                 className={`flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-semibold transition ${
                   isActive
                     ? "bg-blue-50 text-blue-600"
@@ -88,7 +122,12 @@ export default function Sidebar() {
         </div>
       </nav>
 
-      {/* Modal Konfirmasi Logout */}
+      <ComingSoonModal
+        isOpen={isComingSoonModalOpen}
+        onClose={() => setIsComingSoonModalOpen(false)}
+        featureName={activeFeatureName}
+      />
+
       <LogoutModal
         isOpen={isLogoutModalOpen}
         onClose={() => setIsLogoutModalOpen(false)}

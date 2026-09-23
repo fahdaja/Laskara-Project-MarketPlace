@@ -1,14 +1,9 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router";
-import { ArrowLeft, Upload, CheckCircle2, Layers } from "lucide-react";
+import { ArrowLeft, Upload, CheckCircle2, Layers, Plus, Trash2, Image as ImageIcon } from "lucide-react";
 import Breadcrumb from "../../components/common/BreadCrumb";
-
-interface PackageTier {
-  price: number | "";
-  feature1: string;
-  feature2: string;
-  feature3: string;
-}
+import type { PackageTier } from "~/src/types/Gigs";
+import type { PortfolioItem } from "~/src/types/Gigs";
 
 export default function AddGig(): React.JSX.Element {
   const navigate = useNavigate();
@@ -18,43 +13,100 @@ export default function AddGig(): React.JSX.Element {
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
 
-  // State 3 Tier Paket (Basic, Standard, Premium)
   const [packages, setPackages] = useState<{
     basic: PackageTier;
     standard: PackageTier;
     premium: PackageTier;
   }>({
-    basic: { price: "", feature1: "", feature2: "", feature3: "" },
-    standard: { price: "", feature1: "", feature2: "", feature3: "" },
-    premium: { price: "", feature1: "", feature2: "", feature3: "" },
+    basic: { price: "", features: [""] },
+    standard: { price: "", features: [""] },
+    premium: { price: "", features: [""] },
   });
 
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [portfolios, setPortfolios] = useState<PortfolioItem[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Helper Update State Paket
-  const handlePackageChange = (
+  const handlePackagePriceChange = (
     tier: "basic" | "standard" | "premium",
-    field: keyof PackageTier,
-    value: string | number
+    value: number | ""
   ) => {
     setPackages((prev) => ({
       ...prev,
       [tier]: {
         ...prev[tier],
-        [field]: value,
+        price: value,
       },
     }));
   };
 
-  // Upload Gambar Handlers
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
+  // Helper Tambah Baris Fitur pada Tier Tertentu
+  const handleAddFeatureRow = (tier: "basic" | "standard" | "premium") => {
+    setPackages((prev) => ({
+      ...prev,
+      [tier]: {
+        ...prev[tier],
+        features: [...prev[tier].features, ""],
+      },
+    }));
+  };
+
+  // Helper Update Nilai Baris Fitur Tertentu
+  const handleFeatureChange = (
+    tier: "basic" | "standard" | "premium",
+    index: number,
+    value: string
+  ) => {
+    setPackages((prev) => {
+      const updatedFeatures = [...prev[tier].features];
+      updatedFeatures[index] = value;
+      return {
+        ...prev,
+        [tier]: {
+          ...prev[tier],
+          features: updatedFeatures,
+        },
+      };
+    });
+  };
+
+  // Helper Hapus Baris Fitur pada Tier Tertentu
+  const handleRemoveFeatureRow = (
+    tier: "basic" | "standard" | "premium",
+    index: number
+  ) => {
+    setPackages((prev) => {
+      const updatedFeatures = prev[tier].features.filter((_, i) => i !== index);
+      return {
+        ...prev,
+        [tier]: {
+          ...prev[tier],
+          features: updatedFeatures.length > 0 ? updatedFeatures : [""], // Minimal sisakan 1 baris kosong
+        },
+      };
+    });
+  };
+
+  // Handler Tambah File Portofolio
+  const handleAddPortfolioImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files[0]) {
+      const file = files[0];
       const reader = new FileReader();
-      reader.onloadend = () => setImagePreview(reader.result as string);
+      reader.onloadend = () => {
+        const newItem: PortfolioItem = {
+          id: `PORTO-${Date.now()}`,
+          image: reader.result as string,
+        };
+        setPortfolios((prev) => [...prev, newItem]);
+      };
       reader.readAsDataURL(file);
     }
+    e.target.value = "";
+  };
+
+  // Hapus Portofolio dari List
+  const handleRemovePortfolioItem = (id: string) => {
+    setPortfolios((prev) => prev.filter((item) => item.id !== id));
   };
 
   // Submit Handler
@@ -84,7 +136,7 @@ export default function AddGig(): React.JSX.Element {
           <div>
             <h1 className="text-2xl font-bold text-slate-900">Buat Layanan Baru</h1>
             <p className="text-xs text-slate-500 mt-0.5">
-              Tentukan paket penawaran dan fitur yang akan didapatkan oleh calon klien.
+              Tentukan paket penawaran, fitur dinamis, dan daftar portofolio unggulan untuk klien.
             </p>
           </div>
         </div>
@@ -100,7 +152,7 @@ export default function AddGig(): React.JSX.Element {
             <input
               type="text"
               required
-              placeholder="contoh: Desain Logo"
+              placeholder="contoh: Desain Logo Profesional & Branding"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
@@ -140,7 +192,7 @@ export default function AddGig(): React.JSX.Element {
           </div>
         </div>
 
-        {/* SECTION 2: Harga & Ketentuan (3 Card Tiers Sesuai Figma) */}
+        {/* SECTION 2: Harga & Ketentuan (3 Card Tiers dengan List Fitur Dinamis) */}
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <Layers size={18} className="text-blue-600" />
@@ -151,201 +203,263 @@ export default function AddGig(): React.JSX.Element {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {/* TIER 01: BASIC */}
-            <div className="bg-white rounded-2xl border border-slate-200 p-5 space-y-4 shadow-sm hover:border-slate-300 transition">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md uppercase tracking-wider">
-                  TIER 01
-                </span>
-                <h3 className="font-bold text-slate-800 text-sm">Basic</h3>
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-[11px] font-medium text-slate-400">Harga Paket (IDR)</label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400">
-                    Rp
+            <div className="bg-white rounded-2xl border border-slate-200 p-5 space-y-4 shadow-sm hover:border-slate-300 transition flex flex-col justify-between">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                  <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md uppercase tracking-wider">
+                    TIER 01
                   </span>
-                  <input
-                    type="number"
-                    required
-                    placeholder="0.00"
-                    value={packages.basic.price}
-                    onChange={(e) =>
-                      handlePackageChange("basic", "price", e.target.value ? Number(e.target.value) : "")
-                    }
-                    className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 text-sm font-semibold outline-none focus:border-blue-500 transition"
-                  />
+                  <h3 className="font-bold text-slate-800 text-sm">Basic</h3>
                 </div>
-              </div>
 
-              <div className="space-y-2 pt-1">
-                <p className="text-[11px] font-semibold text-slate-500">Fitur yang Termasuk:</p>
-                <input
-                  type="text"
-                  placeholder="Fitur 1 (mis. 1 Konsep Logo)"
-                  value={packages.basic.feature1}
-                  onChange={(e) => handlePackageChange("basic", "feature1", e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-slate-100 bg-slate-50/50 text-xs outline-none focus:bg-white focus:border-blue-400 transition"
-                />
-                <input
-                  type="text"
-                  placeholder="Fitur 2 (mis. File PNG/JPG)"
-                  value={packages.basic.feature2}
-                  onChange={(e) => handlePackageChange("basic", "feature2", e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-slate-100 bg-slate-50/50 text-xs outline-none focus:bg-white focus:border-blue-400 transition"
-                />
-                <input
-                  type="text"
-                  placeholder="Fitur 3 (mis. 1x Revisi)"
-                  value={packages.basic.feature3}
-                  onChange={(e) => handlePackageChange("basic", "feature3", e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-slate-100 bg-slate-50/50 text-xs outline-none focus:bg-white focus:border-blue-400 transition"
-                />
+                <div className="space-y-1">
+                  <label className="text-[11px] font-medium text-slate-400">Harga Paket (IDR)</label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400">
+                      Rp
+                    </span>
+                    <input
+                      type="number"
+                      required
+                      placeholder="0"
+                      value={packages.basic.price}
+                      onChange={(e) =>
+                        handlePackagePriceChange("basic", e.target.value ? Number(e.target.value) : "")
+                      }
+                      className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 text-sm font-semibold outline-none focus:border-blue-500 transition"
+                    />
+                  </div>
+                </div>
+
+                {/* List Fitur Dinamis Basic */}
+                <div className="space-y-2 pt-1">
+                  <div className="flex items-center justify-between">
+                    <p className="text-[11px] font-semibold text-slate-500">Fitur yang Termasuk:</p>
+                    <button
+                      type="button"
+                      onClick={() => handleAddFeatureRow("basic")}
+                      className="text-[11px] font-bold text-blue-600 hover:underline flex items-center gap-1"
+                    >
+                      <Plus size={12} /> Tambah Fitur
+                    </button>
+                  </div>
+
+                  <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                    {packages.basic.features.map((feature, index) => (
+                      <div key={index} className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          required
+                          placeholder={`Fitur #${index + 1}`}
+                          value={feature}
+                          onChange={(e) => handleFeatureChange("basic", index, e.target.value)}
+                          className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 text-xs outline-none focus:bg-white focus:border-blue-400 transition"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveFeatureRow("basic", index)}
+                          className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition"
+                          title="Hapus baris"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* TIER 02: STANDARD (POPULAR / HIGHLIGHT) */}
-            <div className="bg-white rounded-2xl border-2 border-blue-500 p-5 space-y-4 shadow-md relative">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                <span className="text-[10px] font-bold text-white bg-blue-600 px-2 py-0.5 rounded-md uppercase tracking-wider">
-                  TIER 02
-                </span>
-                <h3 className="font-bold text-blue-600 text-sm">Standard</h3>
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-[11px] font-medium text-slate-400">Harga Paket (IDR)</label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400">
-                    Rp
+            {/* TIER 02: STANDARD */}
+            <div className="bg-white rounded-2xl border-2 border-blue-500 p-5 space-y-4 shadow-md relative flex flex-col justify-between">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                  <span className="text-[10px] font-bold text-white bg-blue-600 px-2 py-0.5 rounded-md uppercase tracking-wider">
+                    TIER 02
                   </span>
-                  <input
-                    type="number"
-                    required
-                    placeholder="0.00"
-                    value={packages.standard.price}
-                    onChange={(e) =>
-                      handlePackageChange("standard", "price", e.target.value ? Number(e.target.value) : "")
-                    }
-                    className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 text-sm font-semibold outline-none focus:border-blue-500 transition"
-                  />
+                  <h3 className="font-bold text-blue-600 text-sm">Standard</h3>
                 </div>
-              </div>
 
-              <div className="space-y-2 pt-1">
-                <p className="text-[11px] font-semibold text-slate-500">Fitur yang Termasuk:</p>
-                <input
-                  type="text"
-                  placeholder="Fitur 1 (mis. 3 Konsep Logo)"
-                  value={packages.standard.feature1}
-                  onChange={(e) => handlePackageChange("standard", "feature1", e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-slate-100 bg-slate-50/50 text-xs outline-none focus:bg-white focus:border-blue-400 transition"
-                />
-                <input
-                  type="text"
-                  placeholder="Fitur 2 (mis. File Vector Master .AI)"
-                  value={packages.standard.feature2}
-                  onChange={(e) => handlePackageChange("standard", "feature2", e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-slate-100 bg-slate-50/50 text-xs outline-none focus:bg-white focus:border-blue-400 transition"
-                />
-                <input
-                  type="text"
-                  placeholder="Fitur 3 (mis. 3x Revisi)"
-                  value={packages.standard.feature3}
-                  onChange={(e) => handlePackageChange("standard", "feature3", e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-slate-100 bg-slate-50/50 text-xs outline-none focus:bg-white focus:border-blue-400 transition"
-                />
+                <div className="space-y-1">
+                  <label className="text-[11px] font-medium text-slate-400">Harga Paket (IDR)</label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400">
+                      Rp
+                    </span>
+                    <input
+                      type="number"
+                      required
+                      placeholder="0"
+                      value={packages.standard.price}
+                      onChange={(e) =>
+                        handlePackagePriceChange("standard", e.target.value ? Number(e.target.value) : "")
+                      }
+                      className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 text-sm font-semibold outline-none focus:border-blue-500 transition"
+                    />
+                  </div>
+                </div>
+
+                {/* List Fitur Dinamis Standard */}
+                <div className="space-y-2 pt-1">
+                  <div className="flex items-center justify-between">
+                    <p className="text-[11px] font-semibold text-slate-500">Fitur yang Termasuk:</p>
+                    <button
+                      type="button"
+                      onClick={() => handleAddFeatureRow("standard")}
+                      className="text-[11px] font-bold text-blue-600 hover:underline flex items-center gap-1"
+                    >
+                      <Plus size={12} /> Tambah Fitur
+                    </button>
+                  </div>
+
+                  <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                    {packages.standard.features.map((feature, index) => (
+                      <div key={index} className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          required
+                          placeholder={`Fitur #${index + 1}`}
+                          value={feature}
+                          onChange={(e) => handleFeatureChange("standard", index, e.target.value)}
+                          className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 text-xs outline-none focus:bg-white focus:border-blue-400 transition"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveFeatureRow("standard", index)}
+                          className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition"
+                          title="Hapus baris"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
 
             {/* TIER 03: PREMIUM */}
-            <div className="bg-white rounded-2xl border border-slate-200 p-5 space-y-4 shadow-sm hover:border-slate-300 transition">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                <span className="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md uppercase tracking-wider">
-                  TIER 03
-                </span>
-                <h3 className="font-bold text-slate-800 text-sm">Premium</h3>
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-[11px] font-medium text-slate-400">Harga Paket (IDR)</label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400">
-                    Rp
+            <div className="bg-white rounded-2xl border border-slate-200 p-5 space-y-4 shadow-sm hover:border-slate-300 transition flex flex-col justify-between">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                  <span className="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md uppercase tracking-wider">
+                    TIER 03
                   </span>
-                  <input
-                    type="number"
-                    required
-                    placeholder="0.00"
-                    value={packages.premium.price}
-                    onChange={(e) =>
-                      handlePackageChange("premium", "price", e.target.value ? Number(e.target.value) : "")
-                    }
-                    className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 text-sm font-semibold outline-none focus:border-blue-500 transition"
-                  />
+                  <h3 className="font-bold text-slate-800 text-sm">Premium</h3>
                 </div>
-              </div>
 
-              <div className="space-y-2 pt-1">
-                <p className="text-[11px] font-semibold text-slate-500">Fitur yang Termasuk:</p>
-                <input
-                  type="text"
-                  placeholder="Fitur 1 (mis. Unlimited Konsep)"
-                  value={packages.premium.feature1}
-                  onChange={(e) => handlePackageChange("premium", "feature1", e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-slate-100 bg-slate-50/50 text-xs outline-none focus:bg-white focus:border-blue-400 transition"
-                />
-                <input
-                  type="text"
-                  placeholder="Fitur 2 (mis. Full Brand Styleguide)"
-                  value={packages.premium.feature2}
-                  onChange={(e) => handlePackageChange("premium", "feature2", e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-slate-100 bg-slate-50/50 text-xs outline-none focus:bg-white focus:border-blue-400 transition"
-                />
-                <input
-                  type="text"
-                  placeholder="Fitur 3 (mis. Revisi Tanpa Batas)"
-                  value={packages.premium.feature3}
-                  onChange={(e) => handlePackageChange("premium", "feature3", e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-slate-100 bg-slate-50/50 text-xs outline-none focus:bg-white focus:border-blue-400 transition"
-                />
+                <div className="space-y-1">
+                  <label className="text-[11px] font-medium text-slate-400">Harga Paket (IDR)</label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400">
+                      Rp
+                    </span>
+                    <input
+                      type="number"
+                      required
+                      placeholder="0"
+                      value={packages.premium.price}
+                      onChange={(e) =>
+                        handlePackagePriceChange("premium", e.target.value ? Number(e.target.value) : "")
+                      }
+                      className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 text-sm font-semibold outline-none focus:border-blue-500 transition"
+                    />
+                  </div>
+                </div>
+
+                {/* List Fitur Dinamis Premium */}
+                <div className="space-y-2 pt-1">
+                  <div className="flex items-center justify-between">
+                    <p className="text-[11px] font-semibold text-slate-500">Fitur yang Termasuk:</p>
+                    <button
+                      type="button"
+                      onClick={() => handleAddFeatureRow("premium")}
+                      className="text-[11px] font-bold text-blue-600 hover:underline flex items-center gap-1"
+                    >
+                      <Plus size={12} /> Tambah Fitur
+                    </button>
+                  </div>
+
+                  <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                    {packages.premium.features.map((feature, index) => (
+                      <div key={index} className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          required
+                          placeholder={`Fitur #${index + 1}`}
+                          value={feature}
+                          onChange={(e) => handleFeatureChange("premium", index, e.target.value)}
+                          className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 text-xs outline-none focus:bg-white focus:border-blue-400 transition"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveFeatureRow("premium", index)}
+                          className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition"
+                          title="Hapus baris"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* SECTION 3: Portfolio Assets (Dropzone Image) */}
+        {/* SECTION 3: Portfolio Assets (Grid Plus Add Button) */}
         <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-4 shadow-sm">
-          <label className="text-xs font-bold text-slate-800 uppercase tracking-wider block">
-            PORTFOLIO ASSETS
-          </label>
+          <div className="border-b border-slate-100 pb-3">
+            <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+              Daftar Portofolio Layanan ({portfolios.length} Gambar)
+            </h3>
+            <p className="text-xs text-slate-400 mt-0.5">
+              Klik kotak tambah (+) untuk mengunggah dan menambahkan gambar portofolio ke dalam list.
+            </p>
+          </div>
 
-          <div className="relative border-2 border-dashed border-slate-200 hover:border-blue-500 bg-slate-50/50 rounded-2xl p-8 flex flex-col items-center justify-center text-center cursor-pointer transition">
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
-            />
-
-            {imagePreview ? (
-              <div className="relative w-full max-w-sm h-40 rounded-xl overflow-hidden border border-slate-200 shadow-sm">
-                <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
-              </div>
-            ) : (
-              <div className="space-y-2">
-                <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center mx-auto">
-                  <Upload size={20} />
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 pt-1">
+            {portfolios.map((item) => (
+              <div
+                key={item.id}
+                className="relative bg-white border border-slate-200 rounded-2xl p-2 space-y-2 shadow-2xs group"
+              >
+                <div className="relative h-32 rounded-xl overflow-hidden bg-slate-100 border border-slate-100">
+                  <img src={item.image} alt="Portofolio" className="w-full h-full object-cover" />
                 </div>
-                <p className="text-xs font-medium text-slate-600">
-                  Drag and drop assets or{" "}
-                  <span className="text-blue-600 font-bold underline">browse</span>
-                </p>
-                <p className="text-[11px] text-slate-400">
-                  High-resolution PNG, JPG (Min 1080p recommended)
-                </p>
+
+                <div className="flex items-center justify-between px-1">
+                  <span className="text-[10px] font-bold text-slate-400">
+                    Portofolio #{portfolios.indexOf(item) + 1}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => handleRemovePortfolioItem(item.id)}
+                    className="p-1 rounded-lg text-rose-500 hover:bg-rose-50 transition"
+                    title="Hapus gambar"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
               </div>
-            )}
+            ))}
+
+            <label className="relative border-2 border-dashed border-slate-300 hover:border-blue-500 bg-slate-50/70 hover:bg-blue-50/30 rounded-2xl h-[156px] flex flex-col items-center justify-center text-center cursor-pointer transition group">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleAddPortfolioImage}
+                className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+              />
+              <div className="w-10 h-10 rounded-xl bg-white shadow-sm border border-slate-200 text-blue-600 group-hover:bg-blue-600 group-hover:text-white flex items-center justify-center transition mb-2">
+                <Plus size={20} />
+              </div>
+              <span className="text-xs font-bold text-slate-700 group-hover:text-blue-600 transition">
+                Tambah Portofolio
+              </span>
+              <span className="text-[10px] text-slate-400 mt-0.5">PNG, JPG</span>
+            </label>
           </div>
         </div>
 

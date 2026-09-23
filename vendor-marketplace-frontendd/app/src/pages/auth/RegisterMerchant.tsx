@@ -1,26 +1,25 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router";
-import { Store, Mail, Lock, User, ArrowRight, ShieldCheck, CheckCircle2 } from "lucide-react";
+import { Store, Mail, Lock, User, ArrowRight, Info } from "lucide-react";
 import AuthPageShell from "~/src/components/auth/AuthPageShell";
 
+
+
+
 export default function RegisterMerchant(): React.JSX.Element {
-  const navigate = useNavigate();
+ 
 
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [storeName, setStoreName] = useState("");
-  const [category, setCategory] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-
-    setTimeout(() => {
-      setIsLoading(false);
-      navigate("/merchant/dashboard");
-    }, 1200);
+    localStorage.setItem("merchant_status", "ONBOARDING")
+    navigate("/merchant/dashboard")
   };
 
   return (
@@ -42,54 +41,55 @@ export default function RegisterMerchant(): React.JSX.Element {
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Nama Pemilik */}
         <div className="space-y-1.5">
-          <label className="text-xs font-bold text-slate-800 uppercase tracking-wider block">
+          <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block">
             Nama Lengkap Pemilik <span className="text-rose-500">*</span>
           </label>
-          <div className="relative">
-            <User size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+          <div className="relative group">
+            <User size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-purple-600 transition" />
             <input
               type="text"
               required
               placeholder="contoh: M. Fahd"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition bg-slate-50/50 focus:bg-white"
+              className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 text-xs font-semibold text-slate-800 outline-none focus:border-purple-600 focus:ring-4 focus:ring-purple-600/10 transition bg-slate-50/60 focus:bg-white"
             />
           </div>
         </div>
 
         {/* Email */}
         <div className="space-y-1.5">
-          <label className="text-xs font-bold text-slate-800 uppercase tracking-wider block">
+          <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block">
             Email Toko / Merchant <span className="text-rose-500">*</span>
           </label>
-          <div className="relative">
-            <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+          <div className="relative group">
+            <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-purple-600 transition" />
             <input
               type="email"
               required
               placeholder="nama@domain.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition bg-slate-50/50 focus:bg-white"
+              className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 text-xs font-semibold text-slate-800 outline-none focus:border-purple-600 focus:ring-4 focus:ring-purple-600/10 transition bg-slate-50/60 focus:bg-white"
             />
           </div>
         </div>
 
         {/* Password */}
         <div className="space-y-1.5">
-          <label className="text-xs font-bold text-slate-800 uppercase tracking-wider block">
+          <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block">
             Kata Sandi <span className="text-rose-500">*</span>
           </label>
-          <div className="relative">
-            <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+          <div className="relative group">
+            <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-purple-600 transition" />
             <input
               type="password"
               required
+              minLength={8}
               placeholder="Minimal 8 karakter"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition bg-slate-50/50 focus:bg-white"
+              className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 text-xs font-semibold text-slate-800 outline-none focus:border-purple-600 focus:ring-4 focus:ring-purple-600/10 transition bg-slate-50/60 focus:bg-white"
             />
           </div>
         </div>
@@ -98,46 +98,34 @@ export default function RegisterMerchant(): React.JSX.Element {
 
         {/* Nama Toko */}
         <div className="space-y-1.5">
-          <label className="text-xs font-bold text-slate-800 uppercase tracking-wider block">
+          <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block">
             Nama Toko / Brand <span className="text-rose-500">*</span>
           </label>
-          <div className="relative">
-            <Store size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+          <div className="relative group">
+            <Store size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-purple-600 transition" />
             <input
               type="text"
               required
               placeholder="contoh: Laskara Tech Studio"
               value={storeName}
               onChange={(e) => setStoreName(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition bg-slate-50/50 focus:bg-white"
+              className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 text-xs font-semibold text-slate-800 outline-none focus:border-purple-600 focus:ring-4 focus:ring-purple-600/10 transition bg-slate-50/60 focus:bg-white"
             />
           </div>
-        </div>
-
-        {/* Kategori Utama */}
-        <div className="space-y-1.5">
-          <label className="text-xs font-bold text-slate-800 uppercase tracking-wider block">
-            Kategori Utama Jasa <span className="text-rose-500">*</span>
-          </label>
-          <select
-            required
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-none focus:border-purple-500 bg-slate-50/50 focus:bg-white text-slate-700 transition"
-          >
-            <option value="">Pilih Kategori Utama</option>
-            <option value="desain">Desain & Grafis</option>
-            <option value="web">Web & Aplikasi</option>
-            <option value="video">Video & Animasi</option>
-            <option value="writing">Penulisan & Penerjemahan</option>
-          </select>
+          {/* Informasi Tambahan / Catatan Permanen */}
+          <div className="flex items-start gap-1.5 pt-1 px-1">
+            <Info size={13} className="text-amber-500 flex-shrink-0 mt-0.5" />
+            <p className="text-[11px] text-slate-500 leading-tight">
+              Nama toko bersifat <strong className="text-slate-700">permanen</strong> dan tidak dapat diubah setelah toko berhasil dibuat. Pastikan sudah benar.
+            </p>
+          </div>
         </div>
 
         {/* Submit Button */}
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full py-3 px-4 rounded-xl bg-purple-600 hover:bg-purple-700 disabled:bg-slate-300 text-white font-semibold text-xs transition shadow-sm flex items-center justify-center gap-2 pt-2.5 mt-4"
+          className="w-full py-3.5 px-4 rounded-xl bg-purple-600 hover:bg-purple-700 disabled:bg-slate-300 text-white font-bold text-xs transition shadow-md shadow-purple-600/20 flex items-center justify-center gap-2 mt-4 cursor-pointer"
         >
           {isLoading ? (
             <span>Mendaftarkan Toko...</span>

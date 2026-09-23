@@ -60,12 +60,24 @@ type Pages = {
   "/merchant/profile": {
     params: {};
   };
+  "/merchant/onboarding": {
+    params: {};
+  };
+  "/merchant/pending": {
+    params: {};
+  };
+  "/merchant/rejected": {
+    params: {};
+  };
+  "/merchant/approve": {
+    params: {};
+  };
 };
 
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/register/merchant" | "/register/client" | "/login" | "/marketplace" | "/merchant/gigs" | "/merchant/gigs/create" | "/merchant/gigs/:id" | "/merchant/dashboard" | "/merchant/messages" | "/merchant/orders" | "/merchant/orders/:id" | "/merchant/transactions" | "/merchant/associates" | "/merchant/profile";
+    page: "/" | "/register/merchant" | "/register/client" | "/login" | "/marketplace" | "/merchant/gigs" | "/merchant/gigs/create" | "/merchant/gigs/:id" | "/merchant/dashboard" | "/merchant/messages" | "/merchant/orders" | "/merchant/orders/:id" | "/merchant/transactions" | "/merchant/associates" | "/merchant/profile" | "/merchant/onboarding" | "/merchant/pending" | "/merchant/rejected" | "/merchant/approve";
   };
   "src/pages/auth/RegisterMerchant.tsx": {
     id: "src/pages/auth/RegisterMerchant";
@@ -97,7 +109,7 @@ type RouteFiles = {
   };
   "src/layouts/MerchantLayout.tsx": {
     id: "src/layouts/MerchantLayout";
-    page: "/merchant/gigs" | "/merchant/gigs/create" | "/merchant/gigs/:id" | "/merchant/dashboard" | "/merchant/messages" | "/merchant/orders" | "/merchant/orders/:id" | "/merchant/transactions" | "/merchant/associates" | "/merchant/profile";
+    page: "/merchant/gigs" | "/merchant/gigs/create" | "/merchant/gigs/:id" | "/merchant/dashboard" | "/merchant/messages" | "/merchant/orders" | "/merchant/orders/:id" | "/merchant/transactions" | "/merchant/associates" | "/merchant/profile" | "/merchant/onboarding" | "/merchant/pending" | "/merchant/rejected" | "/merchant/approve";
   };
   "src/pages/merchant/Gigs.tsx": {
     id: "src/pages/merchant/Gigs";
@@ -123,8 +135,8 @@ type RouteFiles = {
     id: "src/pages/merchant/Orders";
     page: "/merchant/orders";
   };
-  "src/components/merchant/OrderDetail.tsx": {
-    id: "src/components/merchant/OrderDetail";
+  "src/pages/merchant/OrderDetail.tsx": {
+    id: "src/pages/merchant/OrderDetail";
     page: "/merchant/orders/:id";
   };
   "src/pages/merchant/Transactions.tsx": {
@@ -138,6 +150,22 @@ type RouteFiles = {
   "src/pages/merchant/StoreProfile.tsx": {
     id: "src/pages/merchant/StoreProfile";
     page: "/merchant/profile";
+  };
+  "src/pages/merchant/MerchantOnBoarding.tsx": {
+    id: "src/pages/merchant/MerchantOnBoarding";
+    page: "/merchant/onboarding";
+  };
+  "src/pages/merchant/MerchantPending.tsx": {
+    id: "src/pages/merchant/MerchantPending";
+    page: "/merchant/pending";
+  };
+  "src/pages/merchant/MerchantRejected.tsx": {
+    id: "src/pages/merchant/MerchantRejected";
+    page: "/merchant/rejected";
+  };
+  "src/pages/merchant/MerchantActivated.tsx": {
+    id: "src/pages/merchant/MerchantActivated";
+    page: "/merchant/approve";
   };
 };
 
@@ -157,8 +185,12 @@ type RouteModules = {
   "src/pages/merchant/Dashboard": typeof import("./app/src/pages/merchant/Dashboard.tsx");
   "src/pages/merchant/Messages": typeof import("./app/src/pages/merchant/Messages.tsx");
   "src/pages/merchant/Orders": typeof import("./app/src/pages/merchant/Orders.tsx");
-  "src/components/merchant/OrderDetail": typeof import("./app/src/components/merchant/OrderDetail.tsx");
+  "src/pages/merchant/OrderDetail": typeof import("./app/src/pages/merchant/OrderDetail.tsx");
   "src/pages/merchant/Transactions": typeof import("./app/src/pages/merchant/Transactions.tsx");
   "src/pages/merchant/Associates": typeof import("./app/src/pages/merchant/Associates.tsx");
   "src/pages/merchant/StoreProfile": typeof import("./app/src/pages/merchant/StoreProfile.tsx");
+  "src/pages/merchant/MerchantOnBoarding": typeof import("./app/src/pages/merchant/MerchantOnBoarding.tsx");
+  "src/pages/merchant/MerchantPending": typeof import("./app/src/pages/merchant/MerchantPending.tsx");
+  "src/pages/merchant/MerchantRejected": typeof import("./app/src/pages/merchant/MerchantRejected.tsx");
+  "src/pages/merchant/MerchantActivated": typeof import("./app/src/pages/merchant/MerchantActivated.tsx");
 };

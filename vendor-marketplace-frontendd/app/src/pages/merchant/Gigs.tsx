@@ -10,79 +10,29 @@ import {
 } from "lucide-react";
 import Breadcrumb from "~/src/components/common/BreadCrumb";
 import { useNavigate } from "react-router";
-
-interface GigsItem {
-  id: string;
-  title: string;
-  description: string;
-  price: number;
-  status: "AKTIF" | "MENUNGGU" | "DITOLAK" | "DRAF";
-  image: string;
-  rejectionReason?: string;
-}
+import type { GigsItem } from "../../types/Gigs";
+import { formatRupiah } from "~/src/utils/formatRupiah";
+import { initialGigs } from "~/src/data/mockGigs";
 
 export default function Gigs(): React.JSX.Element {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<string>("Semua");
 
-  // State Stateful untuk List Gigs agar bisa Dihapus
-  const [gigs, setGigs] = useState<GigsItem[]>([
-    {
-      id: "1",
-      title: "Desain Logo Minimalis",
-      description:
-        "Desain logo lengkap, palet warna, dan template media sosial untuk kebutuhan premium.",
-      price: 45000,
-      status: "AKTIF",
-      image: "/assets/images/hero-creative-studio.png",
-    },
-    {
-      id: "2",
-      title: "UI/UX Website E-Commerce",
-      description:
-        "Perancangan tampilan web modern dan responsif menggunakan Figma.",
-      price: 150000,
-      status: "MENUNGGU",
-      image: "/assets/images/hero-creative-studio.png",
-    },
-    {
-      id: "3",
-      title: "Video Motion Graphic 30s",
-      description:
-        "Pembuatan video promosi produk animasi 2D untuk iklan sosial media.",
-      price: 45000,
-      status: "DITOLAK",
-      image: "/assets/images/hero-creative-studio.png",
-      rejectionReason:
-        "Harga terlalu rendah untuk posisi brand saat ini. Sesuaikan minimal menjadi Rp 50.000.",
-    },
-  ]);
+  const [gigs, setGigs] = useState<GigsItem[]>(initialGigs);
 
-  // State Modal Konfirmasi Hapus
   const [selectedGigToDelete, setSelectedGigToDelete] = useState<GigsItem | null>(null);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
-  const tabs = ["Semua", "Menunggu", "Disetujui", "Ditolak", "Draf"];
+  const tabs = ["Semua", "Menunggu", "Disetujui", "Ditolak"];
 
-  // Format Rupiah Helper
-  const formatRupiah = (number: number) => {
-    return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      maximumFractionDigits: 0,
-    }).format(number);
-  };
-
-  // Logika Filter Gigs Sesuai Tab
+  
   const filteredGigs = gigs.filter((gig) => {
     if (activeTab === "Menunggu") return gig.status === "MENUNGGU";
     if (activeTab === "Disetujui") return gig.status === "AKTIF";
     if (activeTab === "Ditolak") return gig.status === "DITOLAK";
-    if (activeTab === "Draf") return gig.status === "DRAF";
     return true;
   });
 
-  // Handler Hapus Gig
   const confirmDelete = () => {
     if (!selectedGigToDelete) return;
     setIsDeleting(true);
@@ -255,24 +205,6 @@ export default function Gigs(): React.JSX.Element {
           </div>
         ))}
 
-        {/* Card Dotted - Tambah Gig Lainnya */}
-        <div
-          onClick={() => navigate("/merchant/gigs/create")}
-          className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl p-6 flex flex-col items-center justify-center text-center min-h-[320px] hover:border-blue-400 hover:bg-blue-50/20 transition cursor-pointer group"
-        >
-          <div className="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-500 group-hover:border-blue-500 group-hover:text-blue-600 transition mb-3 shadow-xs">
-            <Plus size={20} />
-          </div>
-
-          <h4 className="font-bold text-slate-900 text-sm">Tambah Gig Lainnya</h4>
-          <p className="text-xs text-slate-400 mt-1 max-w-[200px] leading-relaxed">
-            Punya keahlian baru? Buat gig tambahan untuk menjangkau lebih banyak klien.
-          </p>
-
-          <span className="mt-4 text-xs font-semibold text-blue-600 group-hover:underline">
-            Mulai Membuat
-          </span>
-        </div>
       </div>
 
       {/* MODAL KONFIRMASI HAPUS GIG */}

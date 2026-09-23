@@ -15,15 +15,15 @@ import {
   ShoppingBag,
   TrendingUp,
   Trash2,
-  Power,
   AlertTriangle,
+  Plus,
 } from "lucide-react";
 import Breadcrumb from "../../components/common/BreadCrumb";
 
 interface PricingTier {
   name: string;
   price: number;
-  description: string;
+  features: string[]; // Diubah menjadi array string dinamis
   deliveryDays: number;
 }
 
@@ -34,11 +34,11 @@ export default function GigsDetail(): React.JSX.Element {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
-  // State Modal Konfirmasi Hapus & Toggle Nonaktif
+  // State Modal Konfirmasi Hapus
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
-  // Mock Data Layanan
+  // Mock Data Layanan dengan Fitur Dinamis
   const [service, setService] = useState({
     id: id || "2",
     title: "Desain Logo Minimalis & Brand Guidelines",
@@ -58,19 +58,19 @@ export default function GigsDetail(): React.JSX.Element {
       basic: {
         name: "Basic",
         price: 50000,
-        description: "1 Konsep Logo Utama + File PNG & JPG High Res",
+        features: ["1 Konsep Logo Utama", "File PNG & JPG High Res"],
         deliveryDays: 2,
       },
       standard: {
         name: "Standard",
         price: 150000,
-        description: "2 Konsep Logo + File Vector Master (AI/EPS) + Color Palette",
+        features: ["2 Konsep Logo", "File Vector Master (AI/EPS)", "Color Palette"],
         deliveryDays: 3,
       },
       premium: {
         name: "Premium",
         price: 350000,
-        description: "3 Konsep Logo + Vector Master + Full Brand Guidelines PDF",
+        features: ["3 Konsep Logo", "Vector Master", "Full Brand Guidelines PDF"],
         deliveryDays: 5,
       },
     },
@@ -83,10 +83,10 @@ export default function GigsDetail(): React.JSX.Element {
     }));
   };
 
-  const handleTierChange = (
+  const handleTierPriceOrDaysChange = (
     tierKey: "basic" | "standard" | "premium",
-    field: keyof PricingTier,
-    value: string | number
+    field: "price" | "deliveryDays",
+    value: number
   ) => {
     setService((prev) => ({
       ...prev,
@@ -98,6 +98,62 @@ export default function GigsDetail(): React.JSX.Element {
         },
       },
     }));
+  };
+
+  // Helper Tambah Baris Fitur pada Tier Tertentu
+  const handleAddFeatureRow = (tierKey: "basic" | "standard" | "premium") => {
+    setService((prev) => ({
+      ...prev,
+      tiers: {
+        ...prev.tiers,
+        [tierKey]: {
+          ...prev.tiers[tierKey],
+          features: [...prev.tiers[tierKey].features, ""],
+        },
+      },
+    }));
+  };
+
+  // Helper Update Nilai Baris Fitur Tertentu
+  const handleFeatureChange = (
+    tierKey: "basic" | "standard" | "premium",
+    index: number,
+    value: string
+  ) => {
+    setService((prev) => {
+      const updatedFeatures = [...prev.tiers[tierKey].features];
+      updatedFeatures[index] = value;
+      return {
+        ...prev,
+        tiers: {
+          ...prev.tiers,
+          [tierKey]: {
+            ...prev.tiers[tierKey],
+            features: updatedFeatures,
+          },
+        },
+      };
+    });
+  };
+
+  // Helper Hapus Baris Fitur pada Tier Tertentu
+  const handleRemoveFeatureRow = (
+    tierKey: "basic" | "standard" | "premium",
+    index: number
+  ) => {
+    setService((prev) => {
+      const updatedFeatures = prev.tiers[tierKey].features.filter((_, i) => i !== index);
+      return {
+        ...prev,
+        tiers: {
+          ...prev.tiers,
+          [tierKey]: {
+            ...prev.tiers[tierKey],
+            features: updatedFeatures.length > 0 ? updatedFeatures : [""], // Minimal sisakan 1 baris
+          },
+        },
+      };
+    });
   };
 
   const handleSave = (e: React.FormEvent) => {
@@ -114,14 +170,12 @@ export default function GigsDetail(): React.JSX.Element {
     }, 1000);
   };
 
-  // Handler Hapus Gig dari Halaman Detail
   const handleDeleteGig = () => {
     setIsDeleting(true);
 
     setTimeout(() => {
       setIsDeleting(false);
       setIsDeleteModalOpen(false);
-      // Pindah kembali ke halaman manajemen gigs setelah hapus
       navigate("/merchant/gigs");
     }, 800);
   };
@@ -152,7 +206,7 @@ export default function GigsDetail(): React.JSX.Element {
               Detail Layanan #{service.id}
             </h1>
             <p className="text-xs text-slate-500">
-              Kelola rincian harga, deskripsi paket, dan status tinjauan layanan.
+              Kelola rincian harga, deskripsi paket dinamis, dan status tinjauan layanan.
             </p>
           </div>
         </div>
@@ -161,6 +215,7 @@ export default function GigsDetail(): React.JSX.Element {
         <div className="flex items-center gap-2">
           {isEditing ? (
             <button
+              type="button"
               onClick={handleSave}
               disabled={isSubmitting}
               className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 text-white text-xs font-semibold shadow-sm transition flex items-center gap-2"
@@ -170,6 +225,7 @@ export default function GigsDetail(): React.JSX.Element {
             </button>
           ) : (
             <button
+              type="button"
               onClick={() => setIsEditing(true)}
               className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-sm transition flex items-center gap-2"
             >
@@ -201,7 +257,7 @@ export default function GigsDetail(): React.JSX.Element {
       {/* Content Form Detail / Edit */}
       <form onSubmit={handleSave} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
-        {/* KOLOM KIRI (2 SPAN): Informasi Utama & Paket Harga */}
+        {/* KOLOM KIRI (2 SPAN): Informasi Utama & Paket Harga Dinamis */}
         <div className="lg:col-span-2 space-y-6">
           
           {/* Card Info Umum */}
@@ -210,10 +266,10 @@ export default function GigsDetail(): React.JSX.Element {
               Informasi Umum
             </h3>
 
-            {/* Judul Layanan */}
+            {/* Nama Layanan */}
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-slate-800 uppercase tracking-wider block">
-                Judul Layanan
+                Nama Layanan
               </label>
               {isEditing ? (
                 <input
@@ -231,14 +287,14 @@ export default function GigsDetail(): React.JSX.Element {
             {/* Deskripsi Layanan */}
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-slate-800 uppercase tracking-wider block">
-                Deskripsi Lengkap
+                Deskripsi
               </label>
               {isEditing ? (
                 <textarea
                   rows={4}
                   value={service.description}
                   onChange={(e) => handleChange("description", e.target.value)}
-                  className="w-full p-4 rounded-xl border border-slate-200 text-xs font-medium outline-none focus:border-blue-500 transition"
+                  className="w-full p-4 rounded-xl border border-slate-200 text-xs font-medium outline-none focus:border-blue-500 transition resize-none"
                   required
                 />
               ) : (
@@ -249,10 +305,10 @@ export default function GigsDetail(): React.JSX.Element {
             </div>
           </div>
 
-          {/* Card Paket 3-Tier Pricing */}
+          {/* Card Paket 3-Tier Pricing dengan List Fitur Dinamis */}
           <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-4 shadow-xs">
             <h3 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center justify-between">
-              <span>Paket & Harga Layanan</span>
+              <span>Harga & Ketentuan Paket</span>
               <Package size={18} className="text-slate-400" />
             </h3>
 
@@ -262,7 +318,7 @@ export default function GigsDetail(): React.JSX.Element {
                 return (
                   <div
                     key={tierKey}
-                    className="bg-slate-50/70 border border-slate-200 p-4 rounded-xl space-y-3 flex flex-col justify-between"
+                    className="bg-slate-50/70 border border-slate-200 p-4 rounded-xl space-y-4 flex flex-col justify-between"
                   >
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
@@ -281,7 +337,7 @@ export default function GigsDetail(): React.JSX.Element {
                             type="number"
                             value={tier.price}
                             onChange={(e) =>
-                              handleTierChange(tierKey, "price", Number(e.target.value))
+                              handleTierPriceOrDaysChange(tierKey, "price", Number(e.target.value))
                             }
                             className="w-full px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-bold bg-white outline-none focus:border-blue-500"
                           />
@@ -292,50 +348,59 @@ export default function GigsDetail(): React.JSX.Element {
                         )}
                       </div>
 
-                      {/* Input Deskripsi Tier */}
-                      <div className="space-y-1">
-                        <label className="text-[10px] font-semibold text-slate-400 uppercase block">
-                          Fasilitas
-                        </label>
+                      {/* List Fitur Dinamis per Tier */}
+                      <div className="space-y-1.5 pt-1">
+                        <div className="flex items-center justify-between">
+                          <label className="text-[10px] font-semibold text-slate-400 uppercase block">
+                            Fasilitas / Fitur
+                          </label>
+                          {isEditing && (
+                            <button
+                              type="button"
+                              onClick={() => handleAddFeatureRow(tierKey)}
+                              className="text-[10px] font-bold text-blue-600 hover:underline flex items-center gap-0.5"
+                            >
+                              <Plus size={10} /> Tambah
+                            </button>
+                          )}
+                        </div>
+
                         {isEditing ? (
-                          <textarea
-                            rows={3}
-                            value={tier.description}
-                            onChange={(e) =>
-                              handleTierChange(tierKey, "description", e.target.value)
-                            }
-                            className="w-full p-2 rounded-lg border border-slate-200 text-xs font-medium bg-white outline-none focus:border-blue-500"
-                          />
+                          <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                            {tier.features.map((feature, index) => (
+                              <div key={index} className="flex items-center gap-1.5">
+                                <input
+                                  type="text"
+                                  required
+                                  value={feature}
+                                  onChange={(e) =>
+                                    handleFeatureChange(tierKey, index, e.target.value)
+                                  }
+                                  placeholder={`Fitur #${index + 1}`}
+                                  className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs font-medium bg-white outline-none focus:border-blue-500"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveFeatureRow(tierKey, index)}
+                                  className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition"
+                                  title="Hapus baris"
+                                >
+                                  <Trash2 size={13} />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
                         ) : (
-                          <p className="text-xs text-slate-600 leading-relaxed min-h-[48px]">
-                            {tier.description}
-                          </p>
+                          <ul className="space-y-1 bg-white p-2.5 rounded-lg border border-slate-200 min-h-[60px]">
+                            {tier.features.map((feature, index) => (
+                              <li key={index} className="text-xs text-slate-600 flex items-start gap-1.5">
+                                <span className="text-blue-500 font-bold">•</span>
+                                <span className="leading-tight">{feature}</span>
+                              </li>
+                            ))}
+                          </ul>
                         )}
                       </div>
-                    </div>
-
-                    {/* Estimasi Hari */}
-                    <div className="space-y-1 border-t border-slate-200 pt-3 mt-2">
-                      <label className="text-[10px] font-semibold text-slate-400 uppercase block">
-                        Waktu Pengerjaan
-                      </label>
-                      {isEditing ? (
-                        <div className="flex items-center gap-1.5">
-                          <input
-                            type="number"
-                            value={tier.deliveryDays}
-                            onChange={(e) =>
-                              handleTierChange(tierKey, "deliveryDays", Number(e.target.value))
-                            }
-                            className="w-16 px-2 py-1 rounded-lg border border-slate-200 text-xs font-bold bg-white"
-                          />
-                          <span className="text-xs text-slate-500">Hari</span>
-                        </div>
-                      ) : (
-                        <p className="text-xs font-bold text-slate-800">
-                          {tier.deliveryDays} Hari Kerja
-                        </p>
-                      )}
                     </div>
                   </div>
                 );
@@ -386,7 +451,7 @@ export default function GigsDetail(): React.JSX.Element {
             )}
           </div>
 
-          {/* Card Gambar Cover + Upload State */}
+          {/* Card Gambar Cover */}
           <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-3 shadow-xs">
             <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider border-b border-slate-100 pb-2">
               Gambar Cover
@@ -436,22 +501,15 @@ export default function GigsDetail(): React.JSX.Element {
             </div>
           </div>
 
-          {/* Danger Zone: Nonaktifkan / Hapus */}
+          {/* Danger Zone: Hapus Gig */}
           <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
-            <button
-              type="button"
-              className="w-full py-2 px-3 rounded-xl border border-slate-200 text-slate-600 hover:bg-white text-xs font-semibold flex items-center justify-center gap-2 transition"
-            >
-              <Power size={14} />
-              <span>Nonaktifkan Sementara</span>
-            </button>
             <button
               type="button"
               onClick={() => setIsDeleteModalOpen(true)}
               className="w-full py-2 px-3 rounded-xl border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-semibold flex items-center justify-center gap-2 transition cursor-pointer"
             >
               <Trash2 size={14} />
-              <span>Hapus Gig Ini</span>
+              <span>Hapus Layanan Ini</span>
             </button>
           </div>
 

@@ -3,8 +3,8 @@ import { Link } from "react-router";
 import AuthModal from "./AuthModal";
 
 export default function Navbar(): React.JSX.Element {
-  const [isRegisterModalOpen, setIsRegisterModalOpen] =
-    useState<boolean>(false);
+  
+  const [isRegisterModalOpen, setIsRegisterModalOpen] = useState<boolean>(false);
 
   return (
     <nav className="bg-white border-b border-gray-100 w-full font-sans sticky top-0 z-40">
