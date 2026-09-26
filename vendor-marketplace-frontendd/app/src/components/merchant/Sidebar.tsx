@@ -63,20 +63,6 @@ export default function Sidebar() {
         </h2>
       </div>
 
-      {/* 🛠️ TOMBOL SIMULASI SWITCH ROLE UNTUK TESTING */}
-      <div className="px-4 pt-3 pb-1">
-        <button
-          className="w-full py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-[11px] font-bold transition flex items-center justify-between border border-slate-200"
-          title="Klik untuk simulasi ganti hak akses"
-        >
-          <span className="flex items-center gap-1.5">
-            <Repeat size={13} className="text-blue-600" />
-            Role: <span className="text-blue-600 uppercase">{currentRole}</span>
-          </span>
-          <span className="text-[10px] text-slate-400 font-normal underline">Ganti</span>
-        </button>
-      </div>
-
       {/* List Navigation Menu */}
       <nav className="flex-1 p-4 flex flex-col justify-between overflow-y-auto">
         <div className="space-y-1">
