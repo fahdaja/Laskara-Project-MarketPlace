@@ -69,15 +69,20 @@ export default function ClientNavbar({ profile }: ClientNavbarProps) {
               Jelajahi
             </NavLink>
 
-            <button
-              type="button"
-              disabled
-              title="Akan dilanjutkan pada pengembangan fitur client berikutnya"
-              className="flex cursor-not-allowed items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-slate-400"
+            <NavLink
+              to="/pesanan"
+              className={({ isActive }) =>
+                [
+                  "flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition",
+                  isActive
+                    ? "bg-blue-50 text-blue-700"
+                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-900",
+                ].join(" ")
+              }
             >
               <ReceiptText size={17} />
               Pesanan Saya
-            </button>
+            </NavLink>
 
             <button
               type="button"
@@ -200,6 +205,22 @@ export default function ClientNavbar({ profile }: ClientNavbarProps) {
           >
             <Compass size={18} />
             Jelajahi
+          </NavLink>
+
+          <NavLink
+            to="/pesanan"
+            onClick={() => setMobileOpen(false)}
+            className={({ isActive }) =>
+              [
+                "mt-1 flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold transition",
+                isActive
+                  ? "bg-blue-50 text-blue-700"
+                  : "text-slate-600 hover:bg-slate-50",
+              ].join(" ")
+            }
+          >
+            <ReceiptText size={18} />
+            Pesanan Saya
           </NavLink>
 
           <Link

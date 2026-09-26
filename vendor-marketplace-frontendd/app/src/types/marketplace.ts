@@ -30,7 +30,9 @@ export type FeaturedStatus = "NONE" | "FEATURED";
 
 export interface MarketplaceCategory {
   id: number;
+
   name: string;
+
   commissionRate: MoneyValue;
 }
 
@@ -44,7 +46,9 @@ export interface GigMerchantMini {
 
 export interface GigCategoryMini {
   id: number;
+
   name: string;
+
   commissionRate: MoneyValue;
 }
 
@@ -52,9 +56,11 @@ export interface MarketplaceGig {
   id: number;
 
   merchantId: number;
+
   categoryId: number;
 
   title: string;
+
   description: string;
 
   price: MoneyValue;
@@ -70,12 +76,9 @@ export interface MarketplaceGig {
   createdAt: string;
 
   featuredStatus: FeaturedStatus;
+
   featuredUntil?: string | null;
 
-  /**
-   * Shape ini mengikuti GET /gigs backend,
-   * karena backend include merchant + category.
-   */
   merchant: GigMerchantMini;
 
   category: GigCategoryMini;
@@ -83,6 +86,7 @@ export interface MarketplaceGig {
 
 export interface PublicMerchant {
   id: number;
+
   userId: number;
 
   shopName: string;
@@ -90,6 +94,7 @@ export interface PublicMerchant {
   description?: string | null;
 
   logoUrl?: string | null;
+
   bannerUrl?: string | null;
 
   status: MerchantStatus;
@@ -111,16 +116,13 @@ export interface LeaderboardMerchant {
 
 export interface MostBookedMerchant {
   merchant?: LeaderboardMerchant;
+
   completedOrders: number;
 }
 
 export interface BestRatingMerchant {
   merchant?: LeaderboardMerchant;
 
-  /**
-   * Backend memakai toFixed(2),
-   * sehingga response-nya string.
-   */
   avgRating: string;
 
   reviewCount: number;
@@ -129,9 +131,6 @@ export interface BestRatingMerchant {
 export interface FastestResponseMerchant {
   merchant?: LeaderboardMerchant;
 
-  /**
-   * Backend memakai toFixed(1).
-   */
   avgResponseHours: string;
 }
 

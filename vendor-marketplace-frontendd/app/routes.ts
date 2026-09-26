@@ -19,6 +19,21 @@ export default [
   // CLIENT
   layout("src/layouts/ClientLayout.tsx", [
     route("marketplace", "src/pages/client/Marketplace.tsx"),
+
+    route(
+      "marketplace/store/:merchantId",
+      "src/pages/client/MerchantStore.tsx",
+    ),
+
+    route("marketplace/:id", "src/pages/client/ServiceDetail.tsx"),
+
+    route("checkout/:gigId", "src/pages/client/Checkout.tsx"),
+
+    route("booking/:orderId", "src/pages/client/Booking.tsx"),
+
+    route("pesanan", "src/pages/client/Orders.tsx"),
+
+    route("pesanan/:orderId", "src/pages/client/OrderDetail.tsx"),
   ]),
 
   // MERCHANT
@@ -49,6 +64,6 @@ export default [
 
     route("merchant/rejected", "src/pages/merchant/MerchantRejected.tsx"),
 
-    route("merchant/approve", "src/pages/merchant/MerchantActivated.tsx")
+    route("merchant/approve", "src/pages/merchant/MerchantActivated.tsx"),
   ]),
 ] satisfies RouteConfig;

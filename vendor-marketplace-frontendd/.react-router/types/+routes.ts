@@ -26,6 +26,34 @@ type Pages = {
   "/marketplace": {
     params: {};
   };
+  "/marketplace/store/:merchantId": {
+    params: {
+      "merchantId": string;
+    };
+  };
+  "/marketplace/:id": {
+    params: {
+      "id": string;
+    };
+  };
+  "/checkout/:gigId": {
+    params: {
+      "gigId": string;
+    };
+  };
+  "/booking/:orderId": {
+    params: {
+      "orderId": string;
+    };
+  };
+  "/pesanan": {
+    params: {};
+  };
+  "/pesanan/:orderId": {
+    params: {
+      "orderId": string;
+    };
+  };
   "/merchant/gigs": {
     params: {};
   };
@@ -77,7 +105,7 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/register/merchant" | "/register/client" | "/login" | "/marketplace" | "/merchant/gigs" | "/merchant/gigs/create" | "/merchant/gigs/:id" | "/merchant/dashboard" | "/merchant/messages" | "/merchant/orders" | "/merchant/orders/:id" | "/merchant/transactions" | "/merchant/associates" | "/merchant/profile" | "/merchant/onboarding" | "/merchant/pending" | "/merchant/rejected" | "/merchant/approve";
+    page: "/" | "/register/merchant" | "/register/client" | "/login" | "/marketplace" | "/marketplace/store/:merchantId" | "/marketplace/:id" | "/checkout/:gigId" | "/booking/:orderId" | "/pesanan" | "/pesanan/:orderId" | "/merchant/gigs" | "/merchant/gigs/create" | "/merchant/gigs/:id" | "/merchant/dashboard" | "/merchant/messages" | "/merchant/orders" | "/merchant/orders/:id" | "/merchant/transactions" | "/merchant/associates" | "/merchant/profile" | "/merchant/onboarding" | "/merchant/pending" | "/merchant/rejected" | "/merchant/approve";
   };
   "src/pages/auth/RegisterMerchant.tsx": {
     id: "src/pages/auth/RegisterMerchant";
@@ -101,11 +129,35 @@ type RouteFiles = {
   };
   "src/layouts/ClientLayout.tsx": {
     id: "src/layouts/ClientLayout";
-    page: "/marketplace";
+    page: "/marketplace" | "/marketplace/store/:merchantId" | "/marketplace/:id" | "/checkout/:gigId" | "/booking/:orderId" | "/pesanan" | "/pesanan/:orderId";
   };
   "src/pages/client/Marketplace.tsx": {
     id: "src/pages/client/Marketplace";
     page: "/marketplace";
+  };
+  "src/pages/client/MerchantStore.tsx": {
+    id: "src/pages/client/MerchantStore";
+    page: "/marketplace/store/:merchantId";
+  };
+  "src/pages/client/ServiceDetail.tsx": {
+    id: "src/pages/client/ServiceDetail";
+    page: "/marketplace/:id";
+  };
+  "src/pages/client/Checkout.tsx": {
+    id: "src/pages/client/Checkout";
+    page: "/checkout/:gigId";
+  };
+  "src/pages/client/Booking.tsx": {
+    id: "src/pages/client/Booking";
+    page: "/booking/:orderId";
+  };
+  "src/pages/client/Orders.tsx": {
+    id: "src/pages/client/Orders";
+    page: "/pesanan";
+  };
+  "src/pages/client/OrderDetail.tsx": {
+    id: "src/pages/client/OrderDetail";
+    page: "/pesanan/:orderId";
   };
   "src/layouts/MerchantLayout.tsx": {
     id: "src/layouts/MerchantLayout";
@@ -178,6 +230,12 @@ type RouteModules = {
   "src/pages/LandingPage": typeof import("./app/src/pages/LandingPage.tsx");
   "src/layouts/ClientLayout": typeof import("./app/src/layouts/ClientLayout.tsx");
   "src/pages/client/Marketplace": typeof import("./app/src/pages/client/Marketplace.tsx");
+  "src/pages/client/MerchantStore": typeof import("./app/src/pages/client/MerchantStore.tsx");
+  "src/pages/client/ServiceDetail": typeof import("./app/src/pages/client/ServiceDetail.tsx");
+  "src/pages/client/Checkout": typeof import("./app/src/pages/client/Checkout.tsx");
+  "src/pages/client/Booking": typeof import("./app/src/pages/client/Booking.tsx");
+  "src/pages/client/Orders": typeof import("./app/src/pages/client/Orders.tsx");
+  "src/pages/client/OrderDetail": typeof import("./app/src/pages/client/OrderDetail.tsx");
   "src/layouts/MerchantLayout": typeof import("./app/src/layouts/MerchantLayout.tsx");
   "src/pages/merchant/Gigs": typeof import("./app/src/pages/merchant/Gigs.tsx");
   "src/pages/merchant/AddGigs": typeof import("./app/src/pages/merchant/AddGigs.tsx");
