@@ -18,7 +18,7 @@ import { formatRupiah } from "~/src/utils/formatRupiah";
 
 export default function Dashboard(): React.JSX.Element {
  
-  const [userRole, setUserRole] = useState<"OWNER" | "ASSOCIATE">("ASSOCIATE"); 
+  const [userRole, setUserRole] = useState<"OWNER" | "ASSOCIATE">("OWNER"); 
   const [availableBalance, setAvailableBalance] = useState<number>(4250000);
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState<boolean>(false);
 

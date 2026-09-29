@@ -19,6 +19,8 @@ import {
   Plus,
 } from "lucide-react";
 import Breadcrumb from "../../components/common/BreadCrumb";
+import type { GigsItem } from "~/src/types/Gigs";
+import BoostGigsModal from "~/src/components/merchant/BoostGigsModal";
 
 interface PricingTier {
   name: string;
@@ -30,6 +32,7 @@ interface PricingTier {
 export default function GigsDetail(): React.JSX.Element {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [gigToBoost, setGigToBoost] = useState<string| null>(null);
 
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -504,6 +507,17 @@ export default function GigsDetail(): React.JSX.Element {
           {/* Danger Zone: Hapus Gig */}
           <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
             <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setGigToBoost(service.title);
+                              }}
+                              className="w-full py-2 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs flex items-center justify-center gap-2 transition"
+                            >
+                              <Rocket size={14} />
+                              <span>BOOST LAYANAN</span>
+                            </button>
+            <button
               type="button"
               onClick={() => setIsDeleteModalOpen(true)}
               className="w-full py-2 px-3 rounded-xl border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-semibold flex items-center justify-center gap-2 transition cursor-pointer"
@@ -554,8 +568,15 @@ export default function GigsDetail(): React.JSX.Element {
             </div>
 
           </div>
-        </div>
+        </div>     
       )}
+      {gigToBoost && (
+              <BoostGigsModal
+                gigTitle={service.title}
+                onClose={() => setGigToBoost(null)}
+              />
+            )}
     </div>
+    
   );
 }

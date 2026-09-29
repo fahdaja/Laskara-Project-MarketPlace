@@ -13,12 +13,14 @@ import { useNavigate } from "react-router";
 import type { GigsItem } from "../../types/Gigs";
 import { formatRupiah } from "~/src/utils/formatRupiah";
 import { initialGigs } from "~/src/data/mockGigs";
+import BoostGigsModal from "~/src/components/merchant/BoostGigsModal";
 
 export default function Gigs(): React.JSX.Element {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<string>("Semua");
 
   const [gigs, setGigs] = useState<GigsItem[]>(initialGigs);
+  const [gigToBoost, setGigToBoost] = useState<GigsItem | null>(null);
 
   const [selectedGigToDelete, setSelectedGigToDelete] = useState<GigsItem | null>(null);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
@@ -169,7 +171,10 @@ export default function Gigs(): React.JSX.Element {
               {service.status === "AKTIF" && (
                 <button
                   type="button"
-                  onClick={(e) => e.stopPropagation()}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setGigToBoost(service);
+                  }}
                   className="w-full py-2 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs flex items-center justify-center gap-2 transition"
                 >
                   <Rocket size={14} />
@@ -206,6 +211,13 @@ export default function Gigs(): React.JSX.Element {
         ))}
 
       </div>
+
+      {gigToBoost && (
+        <BoostGigsModal
+          gigTitle={gigToBoost.title}
+          onClose={() => setGigToBoost(null)}
+        />
+      )}
 
       {/* MODAL KONFIRMASI HAPUS GIG */}
       {selectedGigToDelete && (

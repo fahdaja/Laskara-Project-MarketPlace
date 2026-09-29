@@ -65,5 +65,6 @@ export default [
     route("merchant/rejected", "src/pages/merchant/MerchantRejected.tsx"),
 
     route("merchant/approve", "src/pages/merchant/MerchantActivated.tsx"),
+
   ]),
 ] satisfies RouteConfig;
